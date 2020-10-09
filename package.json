@@ -1,0 +1,27 @@
+{
+  "name": "@serverless-tool/cdn",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.alibaba-inc.com:xianbin.txb/cdn-alibaba.git"
+  },
+  "author": "Xianbin Tang",
+  "license": "ISC",
+  "dependencies": {
+    "@alicloud/pop-core": "^1.7.9",
+    "@serverless-devs/s-core": "0.0.10",
+    "colors": "^1.4.0",
+    "debug": "^4.2.0",
+    "dotenv": "^8.2.0",
+    "fs-extra": "^9.0.1",
+    "js-yaml": "^3.14.0",
+    "lodash": "^4.17.20",
+    "os": "^0.1.1",
+    "path": "^0.12.7"
+  }
+}

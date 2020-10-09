@@ -1,0 +1,21 @@
+CDNDemoProject:
+  Component: /Users/xianbintang/workspace/cdn-alibaba/src
+  Provider: Alibaba
+  Access: edas_beta_test
+  Properties:
+    Region: cn-hangzhou
+    Service:
+      Name: test-nas
+      Description: 欢迎使用 NAS
+      Vpc:
+        SecurityGroupId: sg-bp1b7t7iaqab1jj1uegy
+        VSwitchIds:
+          - vsw-bp1pg0h1ntwtwir4h2oi8
+        VpcId: vpc-bp11t4ampcukjnmnuth8e
+      Nas:
+        GroupId: 10003
+        UserId: 10003
+        MountPoints:
+          - ServerAddr: 0b90f4b316-oca46.cn-hangzhou.nas.aliyuncs.com:/hello-nas
+            MountDir: /mnt/auto
+      Role: acs:ram::1314839067006888:role/aliyunfclogexecutionrole

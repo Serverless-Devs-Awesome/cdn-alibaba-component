@@ -2,44 +2,38 @@ CDNComponent:
   Component: cdn
   Provider: alibaba
   Properties:
-    Domain: anycodes.cn # 加速域名
-    Status: Stop # 加速区域
+    # 1. 预热源站内容到缓存节点/刷新节点上的文件内容 不需要配置参数，通过命令行参数传递即可
+    # 2. AddCdnDomain 相关参数
+    CdnType: web # * 加速域名的业务类型
+    DomainName: anycodes.cn # * 加速域名
     ResourceGroupId: 123 # 资源分组
-    Scope: domestic # 业务类型
-    TopLevelDomain: yourTopLevelDomain # 顶级接入域
-    Others:
-      GreenManager: enable # 图片鉴黄
-    Ipv6: # ipv6
-      Enable: true
-      Region: *
-    Tags: # 标签
-      - Key: key1
-        Value: Value1
     Sources: # 源站信息
       Type: oss
       Content: 0.0.0.0
       Port: 443
       Priority: 20
       Weight: 10
+    CheckUrl: www.yourdomain.com/test.html # 健康检查URL
+    Scope: domestic # 业务类型
+    TopLevelDomain: yourTopLevelDomain # 顶级接入域
+
+    # 3. 添加资源标签
+    Tags: # 标签
+      - Key: key1
+        Value: Value1
+
+    # 4. 批量配置域名
+    ### ipv6
+    Ipv6:
+      Enable: true
+      Region: *
+    ### 其他配置
+    Others:
+      GreenManager: enable # 图片鉴黄
+    ### 强制 http/https
     Force: Http / Https # 强制http/https
-    Https: # https配置
-      Status: true
-      CertName: yourCertName
-      CertType: upload
-      ForceSet: ForceSet
-      PrivateKey: './certificates/privateKey.pem'
-      Certificate: './certificates/certificate.pem'
-      Http2: enable
-      TLS:
-        Tls10: enable
-        Tls11: enable
-        Tls12: enable
-        Tls13: enable
-      HSTS:
-        Enabled: true
-        MaxAge: 10
-        IncludeSubdomains: enable
-    AccessControl: # 访问控制
+    ### 访问控制
+    AccessControl:
       Referer: # 防盗链
         White:
           AllowEmpty: true
@@ -64,7 +58,8 @@ CDNComponent:
         Delta: Delta # 默认1800，和控制台一致
         Key1: Key1
         Key2: Key2
-    Performance: # 性能优化
+    ### 性能优化
+    Performance:
       Gzip: enable # 智能压缩
       Tesla: enable # 页面优化
       Brotli: ebable # Brotli压缩
@@ -80,7 +75,8 @@ CDNComponent:
         Args:
           - a
           - b
-    Video: # 视频相关
+    ### 视频相关
+    Video:
       Range: range
       VideoSeek:
         Enable: true
@@ -91,8 +87,8 @@ CDNComponent:
         Mp4Seek:
           Start: a
           End: a
-      VideoSplit: enable
-
+      VideoSplit: enable    # 5. 设置加速域名的证书信息
+    ### 回源配置
     BackToOrigin:
       RequestHost: #回源HOST
         Domain: anycodes.cn
@@ -130,7 +126,8 @@ CDNComponent:
           HeaderSource: HeaderSource
           HeaderDestination: aa
           MatchAll: MatchAll
-    Cache: # 缓存配置
+    ### 缓存配置
+    Cache:
       FileTTL:
         - TTL: 10
           FileType: txt
@@ -154,3 +151,23 @@ CDNComponent:
           HeaderSource: HeaderSource
           HeaderDestination: aa
           MatchAll: MatchAll
+    ### https配置
+    Https:
+      Status: true
+      CertName: yourCertName
+      CertType: upload
+      ForceSet: ForceSet
+      PrivateKey: './certificates/privateKey.pem'
+      Certificate: './certificates/certificate.pem'
+      Http2: enable
+      TLS:
+        Tls10: enable
+        Tls11: enable
+        Tls12: enable
+        Tls13: enable
+      HSTS:
+        Enabled: true
+        MaxAge: 10
+        IncludeSubdomains: enable
+
+
