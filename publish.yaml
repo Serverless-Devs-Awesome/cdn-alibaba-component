@@ -1,0 +1,156 @@
+CDNComponent:
+  Component: cdn
+  Provider: alibaba
+  Properties:
+    Domain: anycodes.cn # 加速域名
+    Status: Stop # 加速区域
+    ResourceGroupId: 123 # 资源分组
+    Scope: domestic # 业务类型
+    TopLevelDomain: yourTopLevelDomain # 顶级接入域
+    Others:
+      GreenManager: enable # 图片鉴黄
+    Ipv6: # ipv6
+      Enable: true
+      Region: *
+    Tags: # 标签
+      - Key: key1
+        Value: Value1
+    Sources: # 源站信息
+      Type: oss
+      Content: 0.0.0.0
+      Port: 443
+      Priority: 20
+      Weight: 10
+    Force: Http / Https # 强制http/https
+    Https: # https配置
+      Status: true
+      CertName: yourCertName
+      CertType: upload
+      ForceSet: ForceSet
+      PrivateKey: './certificates/privateKey.pem'
+      Certificate: './certificates/certificate.pem'
+      Http2: enable
+      TLS:
+        Tls10: enable
+        Tls11: enable
+        Tls12: enable
+        Tls13: enable
+      HSTS:
+        Enabled: true
+        MaxAge: 10
+        IncludeSubdomains: enable
+    AccessControl: # 访问控制
+      Referer: # 防盗链
+        White:
+          AllowEmpty: true
+          List:
+            - aa
+        Black:
+          AllowEmpty: true
+          List:
+            - aa
+      Ip: # ip黑白名单
+        WhiteList:
+          - aa
+        BlackList:
+          - aa
+      UserAgent: # UA黑白名单
+        WhiteList:
+          - aaaa
+        BlackList:
+          - aa
+      Auth: # 阿里鉴权
+        Type: Type
+        Delta: Delta # 默认1800，和控制台一致
+        Key1: Key1
+        Key2: Key2
+    Performance: # 性能优化
+      Gzip: enable # 智能压缩
+      Tesla: enable # 页面优化
+      Brotli: ebable # Brotli压缩
+      RemoveArgs: # 过滤参数
+        Enable: true
+        KeepOSSArgs: enable
+        Args:
+          - a
+          - b
+      HashkeyArgs: # 保留参数
+        Enable: true
+        KeepOSSArgs: enable
+        Args:
+          - a
+          - b
+    Video: # 视频相关
+      Range: range
+      VideoSeek:
+        Enable: true
+        FlvSeek:
+          ByTime: enable
+          Start: a
+          End: a
+        Mp4Seek:
+          Start: a
+          End: a
+      VideoSplit: enable
+
+    BackToOrigin:
+      RequestHost: #回源HOST
+        Domain: anycodes.cn
+      SNI: sni
+      Timeout: 10
+      SetResponseHeader:
+        - Key: Content-Type
+          Value: a
+      SetRequestHeader:
+        - Key: Content-Type
+          Value: a
+      ForwardScheme: # 回源协议
+        Enable: true
+        Origin: http
+      ArgumentRewrite: # 参数改写
+        Delete:
+          - a
+        Save:
+          - a
+        IgnoreAll: enable
+        Add:
+          - a
+        Modify:
+          - a
+      UrlRewrite:
+        - SourceUrl: a
+          TargetUrl: a
+          Flag: break
+          EnhanceBreak: a
+      ResponseHeader:
+        - Key: Content-Type
+          Value: a
+          OperationType: add
+          Duplicate: Duplicate
+          HeaderSource: HeaderSource
+          HeaderDestination: aa
+          MatchAll: MatchAll
+    Cache: # 缓存配置
+      FileTTL:
+        - TTL: 10
+          FileType: txt
+          Weight: 10
+      PathTTL:
+        - TTL: 10
+          Path: /a
+          Weight: 10
+      DefaultPages:
+        - Code: 404
+          Page: index.html
+      Rewrite:
+        - Regex: Regex
+          Replacement: Replacement
+          Flag: redirect
+      SetResponseHeader:
+        - Key: Content-Type
+          Value: a
+          OperationType: add
+          Duplicate: Duplicate
+          HeaderSource: HeaderSource
+          HeaderDestination: aa
+          MatchAll: MatchAll
