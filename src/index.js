@@ -1,6 +1,7 @@
 'use strict'
 
 const { Component } = require('@serverless-devs/s-core')
+const { green, yellow, blue, red} = require('colors')
 
 const { getCDNClient, getDNSClient} = require('./utils/client')
 
@@ -24,9 +25,6 @@ class CDNComponent extends Component {
     const backToOrigin = properties.BackToOrigin || {}
     const cache = properties.Cache || {}
     const https = properties.Https || {}
-    // const DomainName = CDNDomain.DomainName ? CDNDomain.DomainName: {}
-    // const Source = CDNDomain.Source ? CDNDomain.Source: {}
-    // const Scope = CDNDomain.Scope ? CDNDomain.Scope: ''
 
     return {
       credentials,
@@ -49,7 +47,7 @@ class CDNComponent extends Component {
   // 1.1 首先添加域名
   // 1.2 然后对域名进行配置
   async deploy(inputs) {
-    console.log('cdn config deploying...')
+    console.log(blue('cdn config deploying...'))
     let client = await getCDNClient(inputs.Credentials)
     let params = {
       "scope":"domestic",
@@ -60,49 +58,110 @@ class CDNComponent extends Component {
 
     let requestOption = {
       method: 'POST'
-    };
+    }
 
     client.request('AddCdnDomain', params, requestOption).then((result) => {
-      console.log(JSON.stringify(result));
+      console.log(JSON.stringify(result))
     }, (ex) => {
-      console.log(ex);
+      console.log(ex)
     })
 
-    console.log('deploy cdn config succeed')
+    console.log(blue('deploy cdn config succeed'))
   }
   // 移除操作
   async remove(inputs) {
-    console.log('cdn config removing...')
-    console.log('remove cdn config succeed')
+    console.log(blue('cdn config removing...'))
+    console.log(blue('remove cdn config succeed'))
   }
   // 刷新操作
   async refresh(inputs) {
-    console.log('cdn config refreshing')
-    console.log('refresh cdn config succeed')
+    console.log(blue('cdn config refreshing'))
+    console.log(blue('refresh cdn config succeed'))
   }
   // 预热操作
   async preload(inputs) {
-    console.log('cdn config preloading')
-    console.log('preload cdn config succeed')
+    console.log(blue('cdn config preloading'))
+    console.log(blue('preload cdn config succeed'))
   }
   async stop(inputs) {
-    console.log('cdn config stopping')
-    console.log('stop cdn config succeed')
+    console.log(blue('cdn config stopping'))
+    const {
+      CDNDomain
+    } = this.handlerInputs(inputs)
+    let client = await getCDNClient(inputs.Credentials)
+    let params = {
+      "domainName":CDNDomain.DomainName,
+    }
+
+    let requestOption = {
+      method: 'POST'
+    }
+
+    await client.request('StopCdnDomain', params, requestOption).then((result) => {
+      console.log(red('domain ' + CDNDomain.DomainName + ' stopped'))
+    }, (ex) => {
+      console.log(ex)
+    })
+    console.log(blue('stop cdn config succeed'))
   }
   async start(inputs) {
-    console.log('cdn config starting')
-    console.log('start cdn config succeed')
-  }
-  async status(inputs) {
-    console.log('cdn config starting')
+    console.log(blue('cdn config starting'))
     const {
-      credentials,
-      state,
-      args,
-      tags
+      CDNDomain
     } = this.handlerInputs(inputs)
-    console.log(tags)
-    console.log('start cdn config succeed')
+    let client = await getCDNClient(inputs.Credentials)
+    let params = {
+      "domainName":CDNDomain.DomainName,
+    }
+
+    let requestOption = {
+      method: 'POST'
+    }
+
+    await client.request('StartCdnDomain', params, requestOption).then((result) => {
+      console.log(green('domain ' + CDNDomain.DomainName + ' started'))
+    }, (ex) => {
+      console.log(ex)
+    })
+    console.log(blue('start cdn config succeed'))
+  }
+
+  async status(inputs) {
+    console.log(blue('get cdn domain status...'))
+    const {
+      CDNDomain
+    } = this.handlerInputs(inputs)
+    let client = await getCDNClient(inputs.Credentials)
+    let params = {
+      "domainName":CDNDomain.DomainName,
+    }
+
+    let requestOption = {
+      method: 'GET'
+    }
+
+    await client.request('DescribeCdnDomainDetail', params, requestOption).then((result) => {
+      console.log(green('Description: ' + result.GetDomainDetailModel.Description))
+      console.log(green('SourceInfo: '))
+      console.log(green('  Type: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Type))
+      console.log(green('  Content: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Content))
+      console.log(green('  Priority: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Priority))
+      console.log(green('  Port: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Port))
+      console.log(green('  Enabled: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Enabled))
+      console.log(green('  Weight: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Weight))
+      // console.log(green('ResourceGroupId: ' + result.GetDomainDetailModel.ResourceGroupId))
+      console.log(green('Scope: ' + result.GetDomainDetailModel.Scope))
+      console.log(green('DomainName: ' + result.GetDomainDetailModel.DomainName))
+      // console.log(green('GmtModified: ' + result.GetDomainDetailModel.GmtModified))
+      // console.log(green('GmtCreate: ' + result.GetDomainDetailModel.GmtCreated))
+      console.log(green('CdnType: ' + result.GetDomainDetailModel.CdnType))
+      console.log(green('Cname: ' + result.GetDomainDetailModel.Cname))
+      console.log(green('DomainStatus: ' + result.GetDomainDetailModel.DomainStatus))
+    }, (ex) => {
+      console.log(ex)
+    })
+
+    console.log(blue('get cdn domain status succeed'))
   }
 }
 
