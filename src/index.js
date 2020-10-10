@@ -43,9 +43,8 @@ class CDNComponent extends Component {
       https
     }
   }
+
   // 部署操作
-  // 1.1 首先添加域名
-  // 1.2 然后对域名进行配置
   async deploy(inputs) {
     console.log(blue('cdn config deploying...'))
     let client = await getCDNClient(inputs.Credentials)
@@ -68,21 +67,26 @@ class CDNComponent extends Component {
 
     console.log(blue('deploy cdn config succeed'))
   }
+
   // 移除操作
   async remove(inputs) {
     console.log(blue('cdn config removing...'))
     console.log(blue('remove cdn config succeed'))
   }
+
   // 刷新操作
   async refresh(inputs) {
     console.log(blue('cdn config refreshing'))
     console.log(blue('refresh cdn config succeed'))
   }
+
   // 预热操作
   async preload(inputs) {
     console.log(blue('cdn config preloading'))
     console.log(blue('preload cdn config succeed'))
   }
+
+  // 停止域名加速
   async stop(inputs) {
     console.log(blue('cdn config stopping'))
     const {
@@ -104,6 +108,9 @@ class CDNComponent extends Component {
     })
     console.log(blue('stop cdn config succeed'))
   }
+
+
+  // 启用域名加速
   async start(inputs) {
     console.log(blue('cdn config starting'))
     const {
@@ -126,6 +133,7 @@ class CDNComponent extends Component {
     console.log(blue('start cdn config succeed'))
   }
 
+  // 获取加速域名状态
   async status(inputs) {
     console.log(blue('get cdn domain status...'))
     const {
