@@ -3,9 +3,9 @@
 const { Component } = require('@serverless-devs/s-core')
 const { green, yellow, blue, red} = require('colors')
 
-const { getCDNClient, getDNSClient} = require('./utils/client')
+const { getCdnClient, getDNSClient} = require('./utils/client')
 
-class CDNComponent extends Component {
+class CdnComponent extends Component {
   // 解析入参
   handlerInputs (inputs) {
     const properties = inputs.Properties || {}
@@ -13,7 +13,7 @@ class CDNComponent extends Component {
     const state = inputs.State || {}
     const args = this.args(inputs.Args)
 
-    const CDNDomain = properties.CDNDomain || {}
+    const CdnDomain = properties.CdnDomain || {}
     const tags = properties.Tags || {}
     const ipv6 = properties.Ipv6 || {}
     const others = properties.Others || {}
@@ -30,7 +30,7 @@ class CDNComponent extends Component {
       credentials,
       state,
       args,
-      CDNDomain,
+      CdnDomain: CdnDomain,
       tags,
       ipv6,
       others,
@@ -46,13 +46,16 @@ class CDNComponent extends Component {
 
   // 部署操作
   async deploy(inputs) {
-    console.log(blue('cdn config deploying...'))
-    let client = await getCDNClient(inputs.Credentials)
+    console.log(blue('CDN config deploying...'))
+    const {
+      CdnDomain
+    } = this.handlerInputs(inputs)
+    let client = await getCdnClient(inputs.Credentials)
     let params = {
-      "scope":"domestic",
-      "cdnType":"web",
-      "domainName":"prettyzxx.com",
-      "sources":"[{\"type\":\"fc_domain\",\"content\":\"31359370-1314839067006888.test.functioncompute.com\",\"port\":80}]"
+      "domainName":CdnDomain.DomainName,
+      "scope":CdnDomain.Scope,
+      "cdnType":CdnDomain.CdnType,
+      "source": JSON.stringify(CdnDomain.Sources)
     }
 
     let requestOption = {
@@ -65,36 +68,36 @@ class CDNComponent extends Component {
       console.log(ex)
     })
 
-    console.log(blue('deploy cdn config succeed'))
+    console.log(blue('deploy CDN config succeed'))
   }
 
   // 移除操作
   async remove(inputs) {
-    console.log(blue('cdn config removing...'))
-    console.log(blue('remove cdn config succeed'))
+    console.log(blue('CDN config removing...'))
+    console.log(blue('remove CDN config succeed'))
   }
 
   // 刷新操作
   async refresh(inputs) {
-    console.log(blue('cdn config refreshing'))
-    console.log(blue('refresh cdn config succeed'))
+    console.log(blue('CDN config refreshing'))
+    console.log(blue('refresh CDN config succeed'))
   }
 
   // 预热操作
   async preload(inputs) {
-    console.log(blue('cdn config preloading'))
-    console.log(blue('preload cdn config succeed'))
+    console.log(blue('CDN config preloading'))
+    console.log(blue('preload CDN config succeed'))
   }
 
   // 停止域名加速
   async stop(inputs) {
-    console.log(blue('cdn config stopping'))
+    console.log(blue('CDN config stopping'))
     const {
-      CDNDomain
+      CdnDomain
     } = this.handlerInputs(inputs)
-    let client = await getCDNClient(inputs.Credentials)
+    let client = await getCdnClient(inputs.Credentials)
     let params = {
-      "domainName":CDNDomain.DomainName,
+      "domainName":CdnDomain.DomainName,
     }
 
     let requestOption = {
@@ -102,23 +105,23 @@ class CDNComponent extends Component {
     }
 
     await client.request('StopCdnDomain', params, requestOption).then((result) => {
-      console.log(red('domain ' + CDNDomain.DomainName + ' stopped'))
+      console.log(red('domain ' + CdnDomain.DomainName + ' stopped'))
     }, (ex) => {
       console.log(ex)
     })
-    console.log(blue('stop cdn config succeed'))
+    console.log(blue('stop CDN config succeed'))
   }
 
 
   // 启用域名加速
   async start(inputs) {
-    console.log(blue('cdn config starting'))
+    console.log(blue('CDN config starting'))
     const {
-      CDNDomain
+      CdnDomain
     } = this.handlerInputs(inputs)
-    let client = await getCDNClient(inputs.Credentials)
+    let client = await getCdnClient(inputs.Credentials)
     let params = {
-      "domainName":CDNDomain.DomainName,
+      "domainName":CdnDomain.DomainName,
     }
 
     let requestOption = {
@@ -126,22 +129,22 @@ class CDNComponent extends Component {
     }
 
     await client.request('StartCdnDomain', params, requestOption).then((result) => {
-      console.log(green('domain ' + CDNDomain.DomainName + ' started'))
+      console.log(green('domain ' + CdnDomain.DomainName + ' started'))
     }, (ex) => {
       console.log(ex)
     })
-    console.log(blue('start cdn config succeed'))
+    console.log(blue('start CDN config succeed'))
   }
 
   // 获取加速域名状态
   async status(inputs) {
-    console.log(blue('get cdn domain status...'))
+    console.log(blue('get CDN domain status...'))
     const {
-      CDNDomain
+      CdnDomain
     } = this.handlerInputs(inputs)
-    let client = await getCDNClient(inputs.Credentials)
+    let client = await getCdnClient(inputs.Credentials)
     let params = {
-      "domainName":CDNDomain.DomainName,
+      "domainName":CdnDomain.DomainName,
     }
 
     let requestOption = {
@@ -169,8 +172,8 @@ class CDNComponent extends Component {
       console.log(ex)
     })
 
-    console.log(blue('get cdn domain status succeed'))
+    console.log(blue('get CDN domain status succeed'))
   }
 }
 
-module.exports = CDNComponent
+module.exports = CdnComponent

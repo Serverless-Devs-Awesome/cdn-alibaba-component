@@ -1,10 +1,10 @@
-CDNComponent:
+CdnComponent:
   Component: cdn
   Provider: alibaba
   Properties:
     # 1. 预热源站内容到缓存节点/刷新节点上的文件内容 不需要配置参数，通过命令行参数传递即可
     # 2. CdnDomain 相关参数
-    CDNDomain:
+    CdnDomain:
       CdnType: web # * 加速域名的业务类型
       DomainName: anycodes.cn # * 加速域名
       ResourceGroupId: 123 # 资源分组

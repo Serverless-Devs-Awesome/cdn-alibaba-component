@@ -2,11 +2,11 @@
 
 const Pop = require('@alicloud/pop-core')
 
-const getCDNClient = async (credentials) => {
+const getCdnClient = async (credentials) => {
   return await getPopClient(credentials, 'https://cdn.aliyuncs.com', '2018-05-10')
 }
 
-const getDNSClient = async (credentials) => {
+const getDnsClient = async (credentials) => {
   return await getPopClient(credentials, 'https://alidns.aliyuncs.com', '2015-01-09')
 }
 
@@ -60,6 +60,6 @@ async function throwProcessedPopPermissionError (ex, action) {
 }
 
 module.exports = {
-  getCDNClient,
-  getDNSClient
+  getCdnClient: getCdnClient,
+  getDNSClient: getDnsClient
 }

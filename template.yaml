@@ -1,10 +1,10 @@
-CDNDemoProject:
+CdnDemoProject:
   Component: /Users/xianbintang/workspace/cdn-alibaba/src
   Provider: Alibaba
   Access: edas_beta_test
   Properties:
-    CDNDomain:
-      CDNType: web
+    CdnDomain:
+      CdnType: web
       DomainName: prettyzxx.com # * 加速域名
 #      ResourceGroupId: 123 # 资源分组
       Sources: # 源站信息
