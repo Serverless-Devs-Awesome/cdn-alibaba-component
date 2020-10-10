@@ -154,6 +154,7 @@ class CdnComponent extends Component {
     await client.request('DescribeCdnDomainDetail', params, requestOption).then((result) => {
       console.log(green('DomainName: ' + result.GetDomainDetailModel.DomainName))
       console.log(green('DomainStatus: ' + result.GetDomainDetailModel.DomainStatus))
+      console.log(green('Scope: ' + result.GetDomainDetailModel.Scope))
       console.log(green('SourceInfo: '))
       console.log(green('  Type: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Type))
       console.log(green('  Content: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Content))
@@ -163,7 +164,6 @@ class CdnComponent extends Component {
       console.log(green('  Weight: ' + result.GetDomainDetailModel.SourceModels.SourceModel[0].Weight))
       // console.log(green('ResourceGroupId: ' + result.GetDomainDetailModel.ResourceGroupId))
       console.log(green('Description: ' + result.GetDomainDetailModel.Description))
-      console.log(green('Scope: ' + result.GetDomainDetailModel.Scope))
       // console.log(green('GmtModified: ' + result.GetDomainDetailModel.GmtModified))
       // console.log(green('GmtCreate: ' + result.GetDomainDetailModel.GmtCreated))
       console.log(green('CdnType: ' + result.GetDomainDetailModel.CdnType))
