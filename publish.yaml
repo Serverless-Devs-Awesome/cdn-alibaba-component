@@ -3,19 +3,20 @@ CDNComponent:
   Provider: alibaba
   Properties:
     # 1. 预热源站内容到缓存节点/刷新节点上的文件内容 不需要配置参数，通过命令行参数传递即可
-    # 2. AddCdnDomain 相关参数
-    CdnType: web # * 加速域名的业务类型
-    DomainName: anycodes.cn # * 加速域名
-    ResourceGroupId: 123 # 资源分组
-    Sources: # 源站信息
-      Type: oss
-      Content: 0.0.0.0
-      Port: 443
-      Priority: 20
-      Weight: 10
-    CheckUrl: www.yourdomain.com/test.html # 健康检查URL
-    Scope: domestic # 业务类型
-    TopLevelDomain: yourTopLevelDomain # 顶级接入域
+    # 2. CdnDomain 相关参数
+    CDNDomain:
+      CdnType: web # * 加速域名的业务类型
+      DomainName: anycodes.cn # * 加速域名
+      ResourceGroupId: 123 # 资源分组
+      Sources: # 源站信息
+        Type: oss
+        Content: 0.0.0.0
+        Port: 443
+        Priority: 20
+        Weight: 10
+      CheckUrl: www.yourdomain.com/test.html # 健康检查URL
+      Scope: domestic # 业务类型
+      TopLevelDomain: yourTopLevelDomain # 顶级接入域
 
     # 3. 添加资源标签
     Tags: # 标签

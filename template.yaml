@@ -3,19 +3,167 @@ CDNDemoProject:
   Provider: Alibaba
   Access: edas_beta_test
   Properties:
-    Region: cn-hangzhou
-    Service:
-      Name: test-nas
-      Description: 欢迎使用 NAS
-      Vpc:
-        SecurityGroupId: sg-bp1b7t7iaqab1jj1uegy
-        VSwitchIds:
-          - vsw-bp1pg0h1ntwtwir4h2oi8
-        VpcId: vpc-bp11t4ampcukjnmnuth8e
-      Nas:
-        GroupId: 10003
-        UserId: 10003
-        MountPoints:
-          - ServerAddr: 0b90f4b316-oca46.cn-hangzhou.nas.aliyuncs.com:/hello-nas
-            MountDir: /mnt/auto
-      Role: acs:ram::1314839067006888:role/aliyunfclogexecutionrole
+    CDNDomain:
+      CDNType: web
+      DomainName: prettyzxx.com # * 加速域名
+#      ResourceGroupId: 123 # 资源分组
+      Sources: # 源站信息
+        Type: fc_domain
+        Content: 31359370-1314839067006888.test.functioncompute.com
+        Port: 80
+#        Priority: 20
+#        Weight: 10
+#      CheckUrl: www.yourdomain.com/test.html # 健康检查URL
+      Scope: domestic # 业务类型
+#      TopLevelDomain: yourTopLevelDomain # 顶级接入域
+    # 添加资源标签
+    Tags: # 标签
+      - Key: key1
+        Value: Value1
+    # 批量配置域名
+    ### ipv6
+    Ipv6:
+      Enable: true
+      Region: all
+    ### 其他配置
+    Others:
+      GreenManager: enable # 图片鉴黄
+    ### 强制 http/https
+    Force: Http / Https # 强制http/https
+    ### 访问控制
+    AccessControl:
+      Referer: # 防盗链
+        White:
+          AllowEmpty: true
+          List:
+            - aa
+        Black:
+          AllowEmpty: true
+          List:
+            - aa
+      Ip: # ip黑白名单
+        WhiteList:
+          - aa
+        BlackList:
+          - aa
+      UserAgent: # UA黑白名单
+        WhiteList:
+          - aaaa
+        BlackList:
+          - aa
+      Auth: # 阿里鉴权
+        Type: Type
+        Delta: Delta # 默认1800，和控制台一致
+        Key1: Key1
+        Key2: Key2
+    ### 性能优化
+    Performance:
+      Gzip: enable # 智能压缩
+      Tesla: enable # 页面优化
+      Brotli: ebable # Brotli压缩
+      RemoveArgs: # 过滤参数
+        Enable: true
+        KeepOSSArgs: enable
+        Args:
+          - a
+          - b
+      HashkeyArgs: # 保留参数
+        Enable: true
+        KeepOSSArgs: enable
+        Args:
+          - a
+          - b
+    ### 视频相关
+    Video:
+      Range: range
+      VideoSeek:
+        Enable: true
+        FlvSeek:
+          ByTime: enable
+          Start: a
+          End: a
+        Mp4Seek:
+          Start: a
+          End: a
+      VideoSplit: enable    # 5. 设置加速域名的证书信息
+    ### 回源配置
+    BackToOrigin:
+      RequestHost: #回源HOST
+        Domain: anycodes.cn
+      SNI: sni
+      Timeout: 10
+      SetResponseHeader:
+        - Key: Content-Type
+          Value: a
+      SetRequestHeader:
+        - Key: Content-Type
+          Value: a
+      ForwardScheme: # 回源协议
+        Enable: true
+        Origin: http
+      ArgumentRewrite: # 参数改写
+        Delete:
+          - a
+        Save:
+          - a
+        IgnoreAll: enable
+        Add:
+          - a
+        Modify:
+          - a
+      UrlRewrite:
+        - SourceUrl: a
+          TargetUrl: a
+          Flag: break
+          EnhanceBreak: a
+      ResponseHeader:
+        - Key: Content-Type
+          Value: a
+          OperationType: add
+          Duplicate: Duplicate
+          HeaderSource: HeaderSource
+          HeaderDestination: aa
+          MatchAll: MatchAll
+    ### 缓存配置
+    Cache:
+      FileTTL:
+        - TTL: 10
+          FileType: txt
+          Weight: 10
+      PathTTL:
+        - TTL: 10
+          Path: /a
+          Weight: 10
+      DefaultPages:
+        - Code: 404
+          Page: index.html
+      Rewrite:
+        - Regex: Regex
+          Replacement: Replacement
+          Flag: redirect
+      SetResponseHeader:
+        - Key: Content-Type
+          Value: a
+          OperationType: add
+          Duplicate: Duplicate
+          HeaderSource: HeaderSource
+          HeaderDestination: aa
+          MatchAll: MatchAll
+    ### https配置
+    Https:
+      Status: true
+      CertName: yourCertName
+      CertType: upload
+      ForceSet: ForceSet
+      PrivateKey: './certificates/privateKey.pem'
+      Certificate: './certificates/certificate.pem'
+      Http2: enable
+      TLS:
+        Tls10: enable
+        Tls11: enable
+        Tls12: enable
+        Tls13: enable
+      HSTS:
+        Enabled: true
+        MaxAge: 10
+        IncludeSubdomains: enable
