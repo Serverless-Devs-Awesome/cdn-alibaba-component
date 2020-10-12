@@ -52,6 +52,7 @@ class CdnComponent extends Component {
     }
   }
 
+  // TODO make sure all operation succeed
   // 部署操作
   async deploy(inputs) {
     console.log(blue('CDN config deploying...'))
@@ -83,10 +84,31 @@ class CdnComponent extends Component {
     console.log(blue('CDN config refreshing'))
     const {
       credentials,
-      refresh
+      refresh,
+      args
     } = this.handlerInputs(inputs)
+    const { Parameters: parameters = {} } = args
+    const { p, path, t, type} = parameters
 
-    await RefreshCdnDomain(credentials, refresh.Path, refresh.Type)
+    let objectPath, objectType
+
+    let argsPath = p || path
+    let argsType = t || type
+    // if args path and args type not empty, then use args
+    if (argsPath && argsType) {
+      objectPath = argsPath
+      objectType = argsType
+    } else if (!argsPath && !argsType) {
+      // if args path and args type are both empty, then param from yaml
+      objectPath = refresh.Path
+      objectType = refresh.Type
+    }
+
+    if (!objectType || !objectPath) {
+      throw new Error(`invalid parameter for refreshing, must provide path and type `)
+    }
+
+    await RefreshCdnDomain(credentials, objectPath, objectType)
 
     console.log(blue('refresh CDN config succeed'))
   }
@@ -96,9 +118,31 @@ class CdnComponent extends Component {
     console.log(blue('CDN config preloading'))
     const {
       credentials,
-      preload
+      preload,
+      args,
     } = this.handlerInputs(inputs)
-    await PreloadCdnDomain(credentials, preload.Path, preload.Area)
+
+    const { Parameters: parameters = {} } = args
+    const { p, path, a, area} = parameters
+
+    let objectPath, targetArea
+
+    let argsPath = p || path
+    let argsArea = a || area
+    // if args path and args area not empty, then use args
+    if (argsPath || argsArea) {
+      objectPath = argsPath
+      targetArea = argsArea
+    } else {
+      objectPath = preload.Path
+      targetArea = preload.Area
+    }
+
+    if (!objectPath) {
+      throw new Error(`invalid parameter for refreshing, must provide path`)
+    }
+
+    await PreloadCdnDomain(credentials, objectPath, targetArea)
 
     console.log(blue('preload CDN config succeed'))
   }

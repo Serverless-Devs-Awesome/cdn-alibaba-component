@@ -64,7 +64,7 @@ const PreloadCdnDomain = async (credentials, path, area) => {
   try {
     return await client.request('RefreshObjectCaches', params, requestOption)
   } catch (ex)  {
-    console.log(ex)
+    console.log(red(`preload cdn domain failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
 }
 
@@ -82,7 +82,7 @@ const RefreshCdnDomain = async (credentials, path, type) => {
   try {
     return await client.request('PushObjectCache', params, requestOption)
   } catch (ex)  {
-    console.log(ex)
+    console.log(red(`refresh cdn domain failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
 }
 const DescribeCdnDomainDetail = async (credentials, domainName) => {
@@ -102,9 +102,9 @@ const DescribeCdnDomainDetail = async (credentials, domainName) => {
 }
 
 const StopCdnDomain = async (credentials, domainName) => {
-  let client = await getCdnClient(inputs.Credentials)
+  let client = await getCdnClient(credentials)
   let params = {
-    "domainName":CdnDomain.DomainName,
+    "domainName": domainName,
   }
 
   let requestOption = {
