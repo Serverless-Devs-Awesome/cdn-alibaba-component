@@ -25,7 +25,7 @@ s project preload -p/--path /abc -t/--type directory
 
 ## 停用操作
 ```
-xianbintang  ~/workspace/cdn-alibaba   master ✘ ✹  s stop                                                                                                                                                          15:19:12 
+xianbintang ~/workspace/cdn-alibaba master$ s stop                                                                                                                                                          15:19:12 
 
 Start ......
 It is detected that your project has the following project/projects < CdnDemoProject > to be execute
@@ -40,7 +40,7 @@ End of method: stop
 
 ## 启用操作
 ```
-xianbintang  ~/workspace/cdn-alibaba   master ✘ ✹  s start                                                                                                                                                         15:18:54 
+xianbintang ~/workspace/cdn-alibaba master$ s start                                                                                                                                                         15:18:54 
 
 Start ......
 It is detected that your project has the following project/projects < CdnDemoProject > to be execute
@@ -55,7 +55,7 @@ End of method: start
 
 ## 查询状态
 ```
- xianbintang  ~/workspace/cdn-alibaba   master ✔  s status                                                                                                                                                          15:16:55 
+ xianbintang ~/workspace/cdn-alibaba master$ s status                                                                                                                                                          15:16:55 
 Start ......
 It is detected that your project has the following project/projects < CdnDemoProject > to be execute
 Start executing project CdnDemoProject
