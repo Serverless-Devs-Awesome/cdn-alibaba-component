@@ -50,12 +50,40 @@ const RemoveCdnDomain = async (credentials, domainName, resourceGroupId) => {
   }
 }
 
-const PreloadCdnDomain = async (credentials, domainName) => {
+// TODO 根据任务查询是否成功
+const PreloadCdnDomain = async (credentials, path, area) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "objectPath": path,
+    "area": area,
+  }
+  let requestOption = {
+    method: 'POST'
+  }
 
+  try {
+    return await client.request('RefreshObjectCaches', params, requestOption)
+  } catch (ex)  {
+    console.log(ex)
+  }
 }
 
-const RefreshCdnDomain = async (credentials, domainName) => {
+// TODO 根据任务查询是否成功
+const RefreshCdnDomain = async (credentials, path, type) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "objectPath": path,
+    "objectType": type,
+  }
+  let requestOption = {
+    method: 'POST'
+  }
 
+  try {
+    return await client.request('PushObjectCache', params, requestOption)
+  } catch (ex)  {
+    console.log(ex)
+  }
 }
 const DescribeCdnDomainDetail = async (credentials, domainName) => {
   let client = await getCdnClient(credentials)

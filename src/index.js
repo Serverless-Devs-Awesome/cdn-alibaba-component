@@ -26,6 +26,9 @@ class CdnComponent extends Component {
     const cache = properties.Cache || {}
     const https = properties.Https || {}
 
+    const refresh = properties.Refresh || {}
+    const preload = properties.Preload || {}
+
     const domainName = cdnDomain.DomainName || {}
 
     return {
@@ -43,6 +46,8 @@ class CdnComponent extends Component {
       backToOrigin,
       cache,
       https,
+      refresh,
+      preload,
       domainName,
     }
   }
@@ -76,12 +81,25 @@ class CdnComponent extends Component {
   // 刷新操作
   async refresh(inputs) {
     console.log(blue('CDN config refreshing'))
+    const {
+      credentials,
+      refresh
+    } = this.handlerInputs(inputs)
+
+    await RefreshCdnDomain(credentials, refresh.Path, refresh.Type)
+
     console.log(blue('refresh CDN config succeed'))
   }
 
   // 预热操作
   async preload(inputs) {
     console.log(blue('CDN config preloading'))
+    const {
+      credentials,
+      preload
+    } = this.handlerInputs(inputs)
+    await PreloadCdnDomain(credentials, preload.Path, preload.Area)
+
     console.log(blue('preload CDN config succeed'))
   }
 

@@ -167,3 +167,11 @@ CdnDemoProject:
         Enabled: true
         MaxAge: 10
         IncludeSubdomains: enable
+    ### refresh 刷新配置
+    Refresh:
+      Path: prettyzxx.com/image/1.png\nprettyzxx.com/image/2.png # splitting with \n or \r\n
+      Type: File # File or Directory
+    ### preload 预热配置
+    Preload:
+      Path: prettyzxx.com/image/1.png\nprettyzxx.com/image/2.png
+      Area: domestic # 1. overseas,  for all over the world except china mainland 2. domestic, for china mainland only  3. (empty) all over the world
