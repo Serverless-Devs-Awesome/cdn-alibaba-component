@@ -173,7 +173,42 @@ const DescribeUserDomains = async (credentials, domainName) => {
     console.log(red(`describe user cdn domains failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
 }
+const DescribeCdnDomainConfigs = async (credentials, domainName, functionName) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "domainName": domainName,
+    "functionNames": functionName,
+  }
+  // construct function string
 
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('DescribeCdnDomainConfigs', params, requestOption)
+  } catch (ex) {
+    console.log(red(`describe cdn domain configs failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
+
+const SetCdnDomainConfig = async (credentials, domainName) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "domainNames":domainName,
+  }
+  // construct function string
+
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('BatchSetCdnDomainConfig', params, requestOption)
+  } catch (ex) {
+    console.log(red(`describe user cdn domains failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
 module.exports = {
   DescribeCdnDomainDetail,
   StartCdnDomain,
@@ -184,4 +219,6 @@ module.exports = {
   RefreshCdnDomain,
   DescribeUserDomains,
   TagResources,
+  SetCdnDomainConfig,
+  DescribeCdnDomainConfigs
 }
