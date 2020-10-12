@@ -11,35 +11,6 @@ const { stopImpl } = require('./command-impl/stop')
 const { startImpl } = require('./command-impl/start')
 
 class CdnComponent extends Component {
-  // 解析入参
-  handlerInputs (inputs) {
-    const properties = inputs.Properties || {}
-    const credentials = inputs.Credentials || {}
-    const state = inputs.State || {}
-    const args = this.args(inputs.Args)
-
-    const cdnDomain = properties.CdnDomain || {}
-    const tags = properties.Tags || {}
-    const ipv6 = properties.Ipv6 || {}
-    const others = properties.Others || {}
-    const force = properties.Force || {}
-    const accessControl = properties.AccessControl || {}
-    const performance = properties.Performance || {}
-    const video = properties.Video || {}
-    const backToOrigin = properties.BackToOrigin || {}
-    const cache = properties.Cache || {}
-    const https = properties.Https || {}
-    const refresh = properties.Refresh || {}
-    const preload = properties.Preload || {}
-    const domainName = cdnDomain.DomainName || {}
-
-    return {
-      credentials, state, args, cdnDomain, tags, ipv6,
-      others, force, accessControl, performance, video,
-      backToOrigin, cache, https, refresh, preload, domainName,
-    }
-  }
-
   // TODO make sure all operation succeed
   // 部署操作
   async deploy(inputs) {
@@ -89,6 +60,35 @@ class CdnComponent extends Component {
     console.log(blue('get CDN domain status...'))
     await statusImpl(this.handlerInputs(inputs))
     console.log(blue('get CDN domain status succeed'))
+  }
+
+  // 解析入参
+  handlerInputs (inputs) {
+    const properties = inputs.Properties || {}
+    const credentials = inputs.Credentials || {}
+    const state = inputs.State || {}
+    const args = this.args(inputs.Args)
+
+    const cdnDomain = properties.CdnDomain || {}
+    const tags = properties.Tags || {}
+    const ipv6 = properties.Ipv6 || {}
+    const others = properties.Others || {}
+    const force = properties.Force || {}
+    const accessControl = properties.AccessControl || {}
+    const performance = properties.Performance || {}
+    const video = properties.Video || {}
+    const backToOrigin = properties.BackToOrigin || {}
+    const cache = properties.Cache || {}
+    const https = properties.Https || {}
+    const refresh = properties.Refresh || {}
+    const preload = properties.Preload || {}
+    const domainName = cdnDomain.DomainName || {}
+
+    return {
+      credentials, state, args, cdnDomain, tags, ipv6,
+      others, force, accessControl, performance, video,
+      backToOrigin, cache, https, refresh, preload, domainName,
+    }
   }
 }
 
