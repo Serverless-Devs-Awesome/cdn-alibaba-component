@@ -3,7 +3,10 @@
 const { Component } = require('@serverless-devs/s-core')
 const { green, yellow, blue, red} = require('colors')
 const { getCdnClient, getDNSClient} = require('./utils/client')
-const { DescribeCdnDomainDetail, StartCdnDomain, StopCdnDomain, DeployCdnDomain, RemoveCdnDomain, RefreshCdnDomain, PreloadCdnDomain } = require('./services/cdn')
+const { DescribeCdnDomainDetail, StartCdnDomain, StopCdnDomain,
+  AddCdnDomain, RemoveCdnDomain, RefreshCdnDomain, PreloadCdnDomain,
+  DescribeUserDomains, TagResources
+} = require('./services/cdn')
 
 class CdnComponent extends Component {
   // 解析入参
@@ -58,9 +61,24 @@ class CdnComponent extends Component {
     console.log(blue('CDN config deploying...'))
     const {
       credentials,
-      cdnDomain
+      cdnDomain,
+      domainName,
+      tags,
     } = this.handlerInputs(inputs)
-    await DeployCdnDomain(credentials, cdnDomain)
+    let userDomains = await DescribeUserDomains(credentials, domainName)
+    let domainExist = false
+    for (const domain of userDomains.Domains.PageData) {
+      if (domain.DomainName === domainName) {
+        domainExist = true
+      }
+    }
+    if (!domainExist) {
+      await AddCdnDomain(credentials, cdnDomain)
+    }
+    // tags related logic
+    if (tags.length !== 0) {
+      await TagResources(credentials, domainName, tags)
+    }
 
     console.log(blue('deploy CDN config succeed'))
   }

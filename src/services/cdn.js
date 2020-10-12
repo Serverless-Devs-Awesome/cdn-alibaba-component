@@ -4,7 +4,7 @@ const { getCdnClient, getDNSClient} = require('../utils/client')
 
 // cdn related api call
 
-const DeployCdnDomain = async (credentials, cdnDomain) => {
+const AddCdnDomain = async (credentials, cdnDomain) => {
   let client = await getCdnClient(credentials)
   let source = new Array({
     "content": cdnDomain.Sources.Content,
@@ -29,7 +29,7 @@ const DeployCdnDomain = async (credentials, cdnDomain) => {
   try {
     await client.request('AddCdnDomain', params, requestOption)
   } catch (ex) {
-    console.log(ex)
+    console.log(red(`deploy cdn domain failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
 }
 
@@ -133,13 +133,55 @@ const StartCdnDomain = async (credentials, domainName) => {
     console.log(ex)
   }
 }
+const TagResources = async (credentials, domainName, tags) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "resourceId.1": domainName,
+    "resourceType": "DOMAIN",
+  }
+
+  // gen params name for tag key
+  for (let i = 0; i < tags.length; i++) {
+    params["Tag." + (i + 1) + ".Key"] = tags[i].Key
+    params["Tag." + (i + 1) + ".Value"] = tags[i].Value
+  }
+
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('TagResources', params, requestOption)
+  } catch (ex) {
+    console.log(red(`add tag resources failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
+
+const DescribeUserDomains = async (credentials, domainName) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "domainName":domainName,
+  }
+
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('DescribeUserDomains', params, requestOption)
+  } catch (ex) {
+    console.log(red(`describe user cdn domains failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
 
 module.exports = {
   DescribeCdnDomainDetail,
   StartCdnDomain,
   StopCdnDomain,
-  DeployCdnDomain,
+  AddCdnDomain,
   RemoveCdnDomain,
   PreloadCdnDomain,
-  RefreshCdnDomain
+  RefreshCdnDomain,
+  DescribeUserDomains,
+  TagResources,
 }

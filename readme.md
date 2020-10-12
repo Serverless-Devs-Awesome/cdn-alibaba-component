@@ -55,7 +55,7 @@ End of method: start
 
 ## 查询状态
 ```
- xianbintang ~/workspace/cdn-alibaba master$ s status                                                                                                                                                          15:16:55 
+xianbintang ~/workspace/cdn-alibaba master$ s status                                                                                                                                                          15:16:55 
 Start ......
 It is detected that your project has the following project/projects < CdnDemoProject > to be execute
 Start executing project CdnDemoProject
