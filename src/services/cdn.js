@@ -133,17 +133,17 @@ const StartCdnDomain = async (credentials, domainName) => {
     console.log(ex)
   }
 }
-const TagResources = async (credentials, domainName, tags) => {
+const UpdateTagResources = async (credentials, domainName, tags) => {
   let client = await getCdnClient(credentials)
-  let params = {
+  let desiredParams = {
     "resourceId.1": domainName,
     "resourceType": "DOMAIN",
   }
 
   // gen params name for tag key
   for (let i = 0; i < tags.length; i++) {
-    params["Tag." + (i + 1) + ".Key"] = tags[i].Key
-    params["Tag." + (i + 1) + ".Value"] = tags[i].Value
+    desiredParams["Tag." + (i + 1) + ".Key"] = tags[i].Key
+    desiredParams["Tag." + (i + 1) + ".Value"] = tags[i].Value
   }
 
   let requestOption = {
@@ -151,10 +151,43 @@ const TagResources = async (credentials, domainName, tags) => {
   }
 
   try {
-    return await client.request('TagResources', params, requestOption)
+    await client.request('TagResources', desiredParams, requestOption)
   } catch (ex) {
     console.log(red(`add tag resources failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
+
+  // get current tags
+  try {
+    let currentParams = {
+      "resourceId.1": domainName,
+      "resourceType": "DOMAIN",
+    }
+
+    let result = await client.request('DescribeTagResources', currentParams, requestOption)
+
+    let currentTags = result.TagResources[0].Tag
+    let deleteParams = {
+      "resourceId.1": domainName,
+      "resourceType": "DOMAIN",
+    }
+    let i = 1
+    for (const ct of currentTags) {
+      let t
+      for (t of tags) {
+        if (t.Key === ct.Key) {
+          break
+        }
+      }
+      if (t.Key !== ct.Key) {
+        deleteParams["tagKey." + i++] = ct.Key
+      }
+    }
+
+    await client.request('UntagResources', deleteParams, requestOption)
+  } catch (ex) {
+    console.log(red(`describe tag resources failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+
 }
 
 const DescribeUserDomains = async (credentials, domainName) => {
@@ -218,7 +251,7 @@ module.exports = {
   PreloadCdnDomain,
   RefreshCdnDomain,
   DescribeUserDomains,
-  TagResources,
+  UpdateTagResources,
   SetCdnDomainConfig,
   DescribeCdnDomainConfigs
 }

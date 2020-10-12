@@ -20,8 +20,14 @@ CdnDemoProject:
     Tags: # 标签
       - Key: key1
         Value: Value1
-      - Key: key2
-        Value: Value2
+#      - Key: key2
+#        Value: Value2
+#      - Key: key3
+#        Value: Value3
+      - Key: key4
+        Value: Value4
+      - Key: key5
+        Value: Value5
     # 批量配置域名
     ### ipv6
     Ipv6:

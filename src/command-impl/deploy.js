@@ -1,9 +1,8 @@
 'use strict'
 
 const { green, yellow, blue, red} = require('colors')
-const { DescribeCdnDomainDetail, StartCdnDomain, StopCdnDomain,
-  AddCdnDomain, RemoveCdnDomain, RefreshCdnDomain, PreloadCdnDomain,
-  DescribeUserDomains, TagResources, DescribeCdnDomainConfigs, SetCdnDomainConfig
+const {
+  AddCdnDomain, DescribeUserDomains, UpdateTagResources, DescribeCdnDomainConfigs,
 } = require('../services/cdn')
 
 const deploy = async (inputParams) => {
@@ -25,12 +24,10 @@ const deploy = async (inputParams) => {
     await AddCdnDomain(credentials, cdnDomain)
   }
   // tags related logic
-  if (tags.length !== 0) {
-    await TagResources(credentials, domainName, tags)
-  }
+  await UpdateTagResources(credentials, domainName, tags)
   // config cdn domain
   let configs = await DescribeCdnDomainConfigs(credentials, domainName, "ipv6")
-  console.log(JSON.stringify(configs))
+  // console.log(JSON.stringify(configs))
 
 }
 
