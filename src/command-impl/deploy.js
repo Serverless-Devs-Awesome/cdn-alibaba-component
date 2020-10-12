@@ -1,8 +1,6 @@
 'use strict'
 
-const { Component } = require('@serverless-devs/s-core')
 const { green, yellow, blue, red} = require('colors')
-const { getCdnClient, getDNSClient} = require('../utils/client')
 const { DescribeCdnDomainDetail, StartCdnDomain, StopCdnDomain,
   AddCdnDomain, RemoveCdnDomain, RefreshCdnDomain, PreloadCdnDomain,
   DescribeUserDomains, TagResources, DescribeCdnDomainConfigs, SetCdnDomainConfig
