@@ -59,10 +59,12 @@ CdnDemoProject:
 #          - 10.10.10.10
 #          - 12.12.12.12
       UserAgent: # UA黑白名单
-        WhiteList:
-          - aaaa
+#        WhiteList:
+#          - iphone
+#          - andoriod
         BlackList:
-          - aa
+          - iphone
+          - andoriod
       Auth: # 阿里鉴权
         Type: Type
         Delta: Delta # 默认1800，和控制台一致

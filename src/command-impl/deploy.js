@@ -96,7 +96,8 @@ const handleOthers = async (credentials, domainName, configs, others) => {
 const handleAccessControl = async (credentials, domainName, configs, accessControl) => {
   let functions = []
   if (!accessControl) {
-    // 删除配置操作
+    // 删除所有accessControl相关的配置操作
+    await deleteConfig(credentials, domainName, configs,["ip_allow_list_set", "ip_black_list_set", "referer_white_list_set", "referer_black_list_set", "ali_ua"])
   } else {
     // Referer
     if (accessControl.Referer) {
@@ -135,11 +136,32 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
       }
     } else {
       await deleteConfig(credentials, domainName, configs,["ip_allow_list_set", "ip_black_list_set"])
-    }
+    } // end of 'if (accessControl.Ip)'
+
+    // user agent
+    if (accessControl.UserAgent) {
+      const whiteList = accessControl.UserAgent.WhiteList
+      const blackList = accessControl.UserAgent.BlackList
+      if (whiteList && !blackList) {
+        let functionArgs = [newFunctionArg("type", "white"), newFunctionArg("ua", whiteList.join("|"))]
+        functions.push(newFunction("ali_ua", functionArgs))
+        await deleteConfig(credentials, domainName, configs, ["ali_ua"])
+      } else if (!whiteList && blackList) {
+        let functionArgs = [newFunctionArg("type", "black"), newFunctionArg("ua", blackList.join("|"))]
+        functions.push(newFunction("ali_ua", functionArgs))
+        await deleteConfig(credentials, domainName, configs, ["ali_ua"])
+      } else {
+        console.log(red(`invalid access control parameter for user agent: ${JSON.stringify(accessControl.UserAgent)}`))
+      }
+    } else {
+      await deleteConfig(credentials, domainName, configs,["ali_ua"])
+    } // end of 'if (accessControl.UserAgent)'
+
   } // end of 'if (!accessControl)'
   return functions
 }
 
+// TODO delete config after all config
 const deleteConfig = async (credentials, domainName, configs, configNameList) => {
   for (const c of configs.DomainConfigs.DomainConfig) {
     if (configNameList.indexOf(c.FunctionName) !== -1)
