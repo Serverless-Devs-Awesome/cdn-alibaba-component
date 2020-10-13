@@ -31,8 +31,8 @@ CdnDemoProject:
     # 批量配置域名
     ### ipv6
     Ipv6:
-      Enable: true
-      Region: all
+      Enable: false
+#      Region: all # 控制台不允配置region，所以我们也不需要
     ### 其他配置
     Others:
       GreenManager: enable # 图片鉴黄
@@ -40,15 +40,17 @@ CdnDemoProject:
     Force: Http / Https # 强制http/https
     ### 访问控制
     AccessControl:
-      Referer: # 防盗链
-        White:
-          AllowEmpty: true
-          List:
-            - aa
+      Referer: # 防盗链，只能配置白名单或者黑名单，不可都配置
+#        White:
+#          AllowEmpty: true
+#          List:
+#            - prettyzxx.com
+#            - www.baidu.com
         Black:
-          AllowEmpty: true
+#          AllowEmpty: true
           List:
-            - aa
+            - prettyzxx.com
+            - www.baidu.com
       Ip: # ip黑白名单
         WhiteList:
           - aa

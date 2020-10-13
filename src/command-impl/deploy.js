@@ -45,6 +45,11 @@ const deploy = async (inputParams) => {
   // http/https
 
   // access control
+  let accessControlArgs = await handleAccessControl(credentials, domainName, configs, accessControl)
+  if (accessControlArgs) {
+    console.log(accessControlArgs)
+    functions.push(accessControlArgs)
+  }
 
   // performance
 
@@ -64,39 +69,23 @@ const deploy = async (inputParams) => {
 
 // TODO 当前region只支持all(*)配置
 const handleIpv6 = async (credentials, domainName, configs, ipv6) => {
-  let ipv6Args
-  let functionArgs =  [{
-    "argName":"region",
-    "argValue":"*"
-  }]
+  let functionArgs = [newFunctionArg("region", "*")]
+
   if (ipv6 && ipv6.Enable === true) {
-    functionArgs.push({"argName":"switch", "argValue":"on" })
+    functionArgs.push(newFunctionArg("switch", "on" ))
   } else if (JSON.stringify(ipv6) === "{}" || (ipv6 && ipv6.Enable === false)) {
-    functionArgs.push({"argName":"switch", "argValue":"off"})
+    functionArgs.push(newFunctionArg("switch", "off"))
   } else {
     console.log(red(`invalid ipv6 parameter: ${JSON.stringify(ipv6)}`))
   }
-  ipv6Args = {
-    "functionArgs": functionArgs,
-    "functionName":"ipv6",
-  }
-  return ipv6Args
+  return newFunction("ipv6", functionArgs)
 }
 
 const handleOthers = async (credentials, domainName, configs, others) => {
   if (others && others.GreenManager === "enable") {
-    let otherArgs
     // console.log(others)
-    let functionArgs = {
-      "argName":"enable",
-      "argValue":"on"
-    }
-
-    otherArgs = {
-      "functionArgs": new Array(functionArgs),
-      "functionName":"green_manager",
-    }
-    return otherArgs
+    let functionArgs = [newFunctionArg("enable", "on")]
+    return newFunction("green_manager", functionArgs)
   } else if (JSON.stringify(others) === "{}" || (others && others.GreenManager === "disable")) {
     for (const c of configs.DomainConfigs.DomainConfig) {
       if (c.FunctionName === "green_manager") {
@@ -108,6 +97,63 @@ const handleOthers = async (credentials, domainName, configs, others) => {
     console.log(red(`invalid green manager parameter: ${JSON.stringify(others)}`))
   }
 }
+
+const handleAccessControl = async (credentials, domainName, configs, accessControl) => {
+  if (!accessControl) {
+    // 删除配置操作
+  } else {
+    if (accessControl.Referer) {
+      const whiteList = accessControl.Referer.White
+      const blackList = accessControl.Referer.Black
+      if (whiteList && !blackList) {
+        // TODO 在页面上的allow_empty是不可以配置的，没必要写到template中。
+        let functionArgs = [newFunctionArg("allow_empty", "off"), newFunctionArg("refer_domain_allow_list", whiteList.List.join(","))]
+        return newFunction("referer_white_list_set", functionArgs)
+      } else if (!whiteList && blackList) {
+        let functionArgs = [newFunctionArg("allow_empty", "off"), newFunctionArg("refer_domain_deny_list", blackList.List.join(","))]
+        return newFunction("referer_black_list_set", functionArgs)
+      } else {
+        console.log(red(`invalid access control parameter for referer: ${JSON.stringify(accessControl.Referer)}`))
+      }
+    } else {
+      // else for : if (accessControl.Referer)
+      for (const c of configs.DomainConfigs.DomainConfig) {
+        if (c.FunctionName === "referer_white_list_set" || c.FunctionName === "referer_black_list_set") {
+          await DeleteSpecificConfig(credentials, domainName, c.ConfigId)
+          break
+        }
+      }
+    }
+  }
+
+  // functionArgs.push({"argName":"switch", "argValue":"on" })
+  // } else if (JSON.stringify(ipv6) === "{}" || (ipv6 && ipv6.Enable === false)) {
+  //   functionArgs.push({"argName":"switch", "argValue":"off"})
+  // } else {
+  //   console.log(red(`invalid ipv6 parameter: ${JSON.stringify(ipv6)}`))
+  // }
+  // ipv6Args = {
+  //   "functionArgs": functionArgs,
+  //   "functionName":"ipv6",
+  // }
+  // return ipv6Args
+}
+
+function newFunctionArg(name, value) {
+  return {
+    "argName": name,
+    "argValue": value
+  }
+}
+
+function newFunction(name, args) {
+  return {
+    "functionArgs": args,
+    "functionName": name,
+  }
+}
+
+
 
 module.exports = {
   deployImpl: deploy
