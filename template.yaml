@@ -31,7 +31,7 @@ CdnDemoProject:
     # 批量配置域名
     ### ipv6
     Ipv6:
-      Enable: false
+      Enable: true
 #      Region: all # 控制台不允配置region，所以我们也不需要
     ### 其他配置
     Others:
@@ -46,11 +46,11 @@ CdnDemoProject:
 #          List:
 #            - prettyzxx.com
 #            - www.baidu.com
-        Black:
+#        Black:
 #          AllowEmpty: true
-          List:
-            - prettyzxx.com
-            - www.baidu.com
+#          List:
+#            - prettyzxx.com
+#            - www.baidu.com
       Ip: # ip黑白名单
         WhiteList:
           - aa

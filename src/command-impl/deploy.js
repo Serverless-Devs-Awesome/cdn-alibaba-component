@@ -87,12 +87,7 @@ const handleOthers = async (credentials, domainName, configs, others) => {
     let functionArgs = [newFunctionArg("enable", "on")]
     return newFunction("green_manager", functionArgs)
   } else if (JSON.stringify(others) === "{}" || (others && others.GreenManager === "disable")) {
-    for (const c of configs.DomainConfigs.DomainConfig) {
-      if (c.FunctionName === "green_manager") {
-        await DeleteSpecificConfig(credentials, domainName, c.ConfigId)
-        break
-      }
-    }
+    await deleteConfig(credentials, domainName, configs, "green_manager")
   } else {
     console.log(red(`invalid green manager parameter: ${JSON.stringify(others)}`))
   }
@@ -117,26 +112,16 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
       }
     } else {
       // else for : if (accessControl.Referer)
-      for (const c of configs.DomainConfigs.DomainConfig) {
-        if (c.FunctionName === "referer_white_list_set" || c.FunctionName === "referer_black_list_set") {
-          await DeleteSpecificConfig(credentials, domainName, c.ConfigId)
-          break
-        }
-      }
+      await deleteConfig(credentials, domainName, configs,["referer_white_list_set", "referer_black_list_set"])
     }
   }
+}
 
-  // functionArgs.push({"argName":"switch", "argValue":"on" })
-  // } else if (JSON.stringify(ipv6) === "{}" || (ipv6 && ipv6.Enable === false)) {
-  //   functionArgs.push({"argName":"switch", "argValue":"off"})
-  // } else {
-  //   console.log(red(`invalid ipv6 parameter: ${JSON.stringify(ipv6)}`))
-  // }
-  // ipv6Args = {
-  //   "functionArgs": functionArgs,
-  //   "functionName":"ipv6",
-  // }
-  // return ipv6Args
+const deleteConfig = async (credentials, domainName, configs, configNameList) => {
+  for (const c of configs.DomainConfigs.DomainConfig) {
+    if (configNameList.indexOf(c.FunctionName) !== -1)
+      await DeleteSpecificConfig(credentials, domainName, c.ConfigId)
+  }
 }
 
 function newFunctionArg(name, value) {
