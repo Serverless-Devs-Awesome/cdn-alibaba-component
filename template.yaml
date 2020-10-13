@@ -46,16 +46,18 @@ CdnDemoProject:
 #          List:
 #            - prettyzxx.com
 #            - www.baidu.com
-#        Black:
+        Black:
 #          AllowEmpty: true
-#          List:
-#            - prettyzxx.com
-#            - www.baidu.com
+          List:
+            - prettyzxx.com
+            - www.baidu.com
       Ip: # ip黑白名单
         WhiteList:
-          - aa
-        BlackList:
-          - aa
+          - 10.10.10.10
+          - 12.12.12.12
+#        BlackList:
+#          - 10.10.10.10
+#          - 12.12.12.12
       UserAgent: # UA黑白名单
         WhiteList:
           - aaaa

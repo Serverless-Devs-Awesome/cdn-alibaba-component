@@ -48,7 +48,7 @@ const deploy = async (inputParams) => {
   let accessControlArgs = await handleAccessControl(credentials, domainName, configs, accessControl)
   if (accessControlArgs) {
     console.log(accessControlArgs)
-    functions.push(accessControlArgs)
+    functions = functions.concat(accessControlArgs)
   }
 
   // performance
@@ -94,27 +94,50 @@ const handleOthers = async (credentials, domainName, configs, others) => {
 }
 
 const handleAccessControl = async (credentials, domainName, configs, accessControl) => {
+  let functions = []
   if (!accessControl) {
     // 删除配置操作
   } else {
+    // Referer
     if (accessControl.Referer) {
       const whiteList = accessControl.Referer.White
       const blackList = accessControl.Referer.Black
       if (whiteList && !blackList) {
         // TODO 在页面上的allow_empty是不可以配置的，没必要写到template中。
         let functionArgs = [newFunctionArg("allow_empty", "off"), newFunctionArg("refer_domain_allow_list", whiteList.List.join(","))]
-        return newFunction("referer_white_list_set", functionArgs)
+        functions.push(newFunction("referer_white_list_set", functionArgs))
+        await deleteConfig(credentials, domainName, configs,["referer_black_list_set"])
       } else if (!whiteList && blackList) {
         let functionArgs = [newFunctionArg("allow_empty", "off"), newFunctionArg("refer_domain_deny_list", blackList.List.join(","))]
-        return newFunction("referer_black_list_set", functionArgs)
+        functions.push(newFunction("referer_black_list_set", functionArgs))
+        await deleteConfig(credentials, domainName, configs,["referer_white_list_set"])
       } else {
         console.log(red(`invalid access control parameter for referer: ${JSON.stringify(accessControl.Referer)}`))
       }
     } else {
-      // else for : if (accessControl.Referer)
       await deleteConfig(credentials, domainName, configs,["referer_white_list_set", "referer_black_list_set"])
+    } // end of 'if (accessControl.Referer) '
+
+    // ip
+    if (accessControl.Ip) {
+      const whiteList = accessControl.Ip.WhiteList
+      const blackList = accessControl.Ip.BlackList
+      if (whiteList && !blackList) {
+        let functionArgs = [newFunctionArg("ip_list", whiteList.join(","))]
+        functions.push(newFunction("ip_allow_list_set", functionArgs))
+        await deleteConfig(credentials, domainName, configs, ["ip_black_list_set"])
+      } else if (!whiteList && blackList) {
+        let functionArgs = [newFunctionArg("ip_list", blackList.join(","))]
+        functions.push(newFunction("ip_black_list_set", functionArgs))
+        await deleteConfig(credentials, domainName, configs, ["ip_allow_list_set"])
+      } else {
+        console.log(red(`invalid access control parameter for ip: ${JSON.stringify(accessControl.Ip)}`))
+      }
+    } else {
+      await deleteConfig(credentials, domainName, configs,["ip_allow_list_set", "ip_black_list_set"])
     }
-  }
+  } // end of 'if (!accessControl)'
+  return functions
 }
 
 const deleteConfig = async (credentials, domainName, configs, configNameList) => {
@@ -137,8 +160,6 @@ function newFunction(name, args) {
     "functionName": name,
   }
 }
-
-
 
 module.exports = {
   deployImpl: deploy
