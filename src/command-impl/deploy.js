@@ -5,6 +5,7 @@ const {
   AddCdnDomain, DescribeUserDomains, UpdateTagResources, DescribeCdnDomainConfigs, SetCdnDomainConfig, DeleteSpecificConfig
 } = require('../services/cdn')
 
+// TODO check param for each config
 const deploy = async (inputParams) => {
   const {
     credentials, state, args, cdnDomain, tags, ipv6,
@@ -52,6 +53,11 @@ const deploy = async (inputParams) => {
   }
 
   // performance
+  let performanceArgs = await handlePerformance(credentials, domainName, configs, performance)
+  if (performanceArgs) {
+    console.log(JSON.stringify(performanceArgs))
+    functions = functions.concat(performanceArgs)
+  }
 
   // video
 
@@ -98,6 +104,7 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
   if (!accessControl) {
     // 删除所有accessControl相关的配置操作
     await deleteConfig(credentials, domainName, configs,["ip_allow_list_set", "ip_black_list_set", "referer_white_list_set", "referer_black_list_set", "ali_ua"])
+    // TODO remove aliauth
   } else {
     // Referer
     if (accessControl.Referer) {
@@ -180,6 +187,111 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
       ]
       functions.push(newFunction("aliauth", functionArgs))
     } // end of 'if (accessControl.Auth)'
+
+  } // end of 'if (!accessControl)'
+  return functions
+}
+
+const handlePerformance = async (credentials, domainName, configs, performance) => {
+  let functions = []
+  if (!performance) {
+    // 删除所有performance相关的配置操作
+    await deleteConfig(credentials, domainName, configs,["ali_remove_args", "set_hashkey_args"])
+  } else {
+    // Tesla 页面优化
+    if (performance.Tesla) {
+      if (performance.Tesla !== "enable" && performance.Tesla !== "disable") {
+        console.log(red(`invalid performance parameter for tesla: ${JSON.stringify(performance.Tesla)}`))
+      } else if (performance.Tesla === "enable") {
+        let functionArgs = [newFunctionArg("enable", "on")]
+        functions.push(newFunction("tesla", functionArgs))
+      } else if (performance.Tesla === "disable") {
+        let functionArgs = [newFunctionArg("enable", "off")]
+        functions.push(newFunction("tesla", functionArgs))
+      }
+    } else {
+      let functionArgs = [newFunctionArg("enable", "off")]
+      functions.push(newFunction("tesla", functionArgs))
+    } // end of 'if (accessControl.Referer) '
+
+    // Gzip 智能压缩
+    if (performance.Gzip) {
+      if (performance.Gzip !== "enable" && performance.Gzip !== "disable") {
+        console.log(red(`invalid performance parameter for Gzip: ${JSON.stringify(performance.Gzip)}`))
+      } else if (performance.Gzip === "enable") {
+        let functionArgs = [newFunctionArg("enable", "on")]
+        functions.push(newFunction("gzip", functionArgs))
+      } else if (performance.Tesla === "disable") {
+        let functionArgs = [newFunctionArg("enable", "off")]
+        functions.push(newFunction("gzip", functionArgs))
+      }
+    } else {
+      let functionArgs = [newFunctionArg("enable", "off")]
+      functions.push(newFunction("gzip", functionArgs))
+    } // end of 'if (accessControl.Referer) '
+
+    // Brotli 压缩
+    if (performance.Brotli) {
+      if (performance.Brotli !== "enable" && performance.Brotli !== "disable") {
+        console.log(red(`invalid performance parameter for Brotli: ${JSON.stringify(performance.Brotli)}`))
+      } else if (performance.Gzip === "enable") {
+        let functionArgs = [newFunctionArg("enable", "on"), newFunctionArg("brotli_level", "1")]
+        functions.push(newFunction("brotli", functionArgs))
+      } else if (performance.Tesla === "disable") {
+        let functionArgs = [newFunctionArg("enable", "off"), newFunctionArg("brotli_level", "1")]
+        functions.push(newFunction("brotli", functionArgs))
+      }
+    } else {
+      let functionArgs = [newFunctionArg("enable", "off"), newFunctionArg("brotli_level", "1")]
+      functions.push(newFunction("brotli", functionArgs))
+    } // end of 'if (accessControl.Referer) '
+
+    // 保留参数
+    if (performance.HashkeyArgs) {
+      let hashKeyArgs = performance.HashkeyArgs
+      let keepOssArgs = "off"
+      if (hashKeyArgs.KeepOSSArgs === "enable") {
+        keepOssArgs = "on"
+      } else if (hashKeyArgs.KeepOSSArgs === "disable") {
+        keepOssArgs = "off"
+      } else {
+        console.log(red(`invalid performance parameter for HashkeyArgs, invalid keepOssArgs, set keep oss args to disable : ${JSON.stringify(performance.HashkeyArgs)}`))
+      }
+      if (hashKeyArgs.Enable !== true && hashKeyArgs.Enable !== false) {
+        console.log(red(`invalid performance parameter for HashkeyArgs, invalid enable: ${JSON.stringify(performance.HashkeyArgs)}`))
+      } else if (hashKeyArgs.Enable === true) {
+        let functionArgs = [newFunctionArg("hashkey_args", hashKeyArgs.Args.join(",")), newFunctionArg("keep_oss_args", keepOssArgs), newFunctionArg("disable", "on")]
+        functions.push(newFunction("set_hashkey_args", functionArgs))
+      } else if (hashKeyArgs.Enable === false) {
+        let functionArgs = [newFunctionArg("hashkey_args", hashKeyArgs.Args.join(",")), newFunctionArg("keep_oss_args", keepOssArgs), newFunctionArg("disable", "off")]
+        functions.push(newFunction("set_hashkey_args", functionArgs))
+      }
+    } else {
+      await deleteConfig(credentials, domainName, configs, ["set_hashkey_args"])
+    }
+
+    // 过滤参数
+    if (performance.RemoveArgs) {
+      let removeArgs = performance.RemoveArgs
+      let keepOssArgs = "off"
+      if (removeArgs.KeepOSSArgs === "enable") {
+        keepOssArgs = "on"
+      } else if (removeArgs.KeepOSSArgs === "disable") {
+        keepOssArgs = "off"
+      } else {
+        console.log(red(`invalid performance parameter for RemoveArgs, invalid keepOssArgs, set keep oss args to disable : ${JSON.stringify(performance.RemoveArgs)}`))
+      }
+      if (removeArgs.Enable !== true && removeArgs.Enable !== false) {
+        console.log(red(`invalid performance parameter for RemoveArgs, invalid enable: ${JSON.stringify(performance.RemoveArgs)}`))
+      } else if (removeArgs.Enable === true) {
+        let functionArgs = [newFunctionArg("ali_remove_args", removeArgs.Args.join(" ")), newFunctionArg("keep_oss_args", keepOssArgs)]
+        functions.push(newFunction("ali_remove_args", functionArgs))
+      } else if (removeArgs.Enable === false) {
+        await deleteConfig(credentials, domainName, configs, ["ali_remove_args"])
+      }
+    } else {
+      await deleteConfig(credentials, domainName, configs, ["ali_remove_args"])
+    }
 
   } // end of 'if (!accessControl)'
   return functions

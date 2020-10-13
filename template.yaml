@@ -66,27 +66,29 @@ CdnDemoProject:
           - iphone
           - andoriod
       Auth: # 阿里鉴权
-        Type: type_d
+        Type: no_auth
         Delta: 1800 # 默认1800，和控制台一致
         Key1: Key3
         Key2: Key4
     ### 性能优化
     Performance:
-      Gzip: enable # 智能压缩
+      Gzip: disable # 智能压缩
       Tesla: enable # 页面优化
-      Brotli: ebable # Brotli压缩
+      Brotli: disable # Brotli压缩
+      # 过滤参数和保留参数只能同时配置一个
       RemoveArgs: # 过滤参数
         Enable: true
         KeepOSSArgs: enable
         Args:
-          - a
-          - b
+          - args1
+          - args2
+          - args3
       HashkeyArgs: # 保留参数
         Enable: true
         KeepOSSArgs: enable
         Args:
-          - a
-          - b
+          - args1
+          - args2
     ### 视频相关
     Video:
       Range: range
