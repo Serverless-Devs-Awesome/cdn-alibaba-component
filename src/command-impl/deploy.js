@@ -26,7 +26,7 @@ const deploy = async (inputParams) => {
   await UpdateTagResources(credentials, domainName, tags)
   // config cdn domain
   let configs = await DescribeCdnDomainConfigs(credentials, domainName, "")
-  console.log(JSON.stringify(configs))
+  // console.log(JSON.stringify(configs))
 
   let functions = []
 
@@ -47,7 +47,7 @@ const deploy = async (inputParams) => {
   // access control
   let accessControlArgs = await handleAccessControl(credentials, domainName, configs, accessControl)
   if (accessControlArgs) {
-    console.log(accessControlArgs)
+    console.log(JSON.stringify(accessControlArgs))
     functions = functions.concat(accessControlArgs)
   }
 
@@ -61,7 +61,7 @@ const deploy = async (inputParams) => {
 
   // https
 
-  console.log(JSON.stringify(functions))
+  // console.log(JSON.stringify(functions))
   if (functions.length !== 0) {
     await SetCdnDomainConfig(credentials, domainName, JSON.stringify(functions))
   }
@@ -156,6 +156,30 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
     } else {
       await deleteConfig(credentials, domainName, configs,["ali_ua"])
     } // end of 'if (accessControl.UserAgent)'
+
+    // Auth
+    if (accessControl.Auth) {
+      let auth = accessControl.Auth
+      if (auth.Type !== "no_auth" && auth.Type !== "type_a" && auth.Type !== "type_b" && auth.Type !== "type_c") {
+        console.log(red(`invalid access control parameter for auth: ${JSON.stringify(accessControl.Auth)}`))
+      } else {
+        let functionArgs = [
+          newFunctionArg("auth_type", auth.Type),
+          newFunctionArg("auth_key1", auth.Key1),
+          newFunctionArg("auth_key2", auth.Key2),
+          newFunctionArg("ali_auth_delta", auth.Delta),
+        ]
+        functions.push(newFunction("aliauth", functionArgs))
+      }
+    } else {
+      let functionArgs = [
+        newFunctionArg("auth_type", "no_auth"),
+        newFunctionArg("auth_key1", "auth_key1"),
+        newFunctionArg("auth_key2", "auth_key2"),
+        newFunctionArg("ali_auth_delta", 1800),
+      ]
+      functions.push(newFunction("aliauth", functionArgs))
+    } // end of 'if (accessControl.Auth)'
 
   } // end of 'if (!accessControl)'
   return functions

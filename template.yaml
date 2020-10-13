@@ -66,10 +66,10 @@ CdnDemoProject:
           - iphone
           - andoriod
       Auth: # 阿里鉴权
-        Type: Type
-        Delta: Delta # 默认1800，和控制台一致
-        Key1: Key1
-        Key2: Key2
+        Type: type_d
+        Delta: 1800 # 默认1800，和控制台一致
+        Key1: Key3
+        Key2: Key4
     ### 性能优化
     Performance:
       Gzip: enable # 智能压缩
