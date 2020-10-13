@@ -31,6 +31,10 @@ const deploy = async (inputParams) => {
   let functions = []
 
   // ipv6
+  let ipv6Args = await handleIpv6(credentials, domainName, configs, ipv6)
+  if (ipv6Args) {
+    functions.push(ipv6Args)
+  }
 
   // other
   let otherArgs = await handleOthers(credentials, domainName, configs, others)
@@ -58,10 +62,31 @@ const deploy = async (inputParams) => {
   }
 }
 
+// TODO 当前region只支持all(*)配置
+const handleIpv6 = async (credentials, domainName, configs, ipv6) => {
+  let ipv6Args
+  let functionArgs =  [{
+    "argName":"region",
+    "argValue":"*"
+  }]
+  if (ipv6 && ipv6.Enable === true) {
+    functionArgs.push({"argName":"switch", "argValue":"on" })
+  } else if (JSON.stringify(ipv6) === "{}" || (ipv6 && ipv6.Enable === false)) {
+    functionArgs.push({"argName":"switch", "argValue":"off"})
+  } else {
+    console.log(red(`invalid ipv6 parameter: ${JSON.stringify(ipv6)}`))
+  }
+  ipv6Args = {
+    "functionArgs": functionArgs,
+    "functionName":"ipv6",
+  }
+  return ipv6Args
+}
+
 const handleOthers = async (credentials, domainName, configs, others) => {
   if (others && others.GreenManager === "enable") {
     let otherArgs
-    console.log(others)
+    // console.log(others)
     let functionArgs = {
       "argName":"enable",
       "argValue":"on"
