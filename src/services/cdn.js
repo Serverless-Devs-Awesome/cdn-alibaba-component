@@ -206,6 +206,25 @@ const DescribeUserDomains = async (credentials, domainName) => {
     console.log(red(`describe user cdn domains failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
 }
+
+const DeleteSpecificConfig = async (credentials, domainName, configId) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "domainName": domainName,
+    "configId": configId,
+  }
+
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('DeleteSpecificConfig', params, requestOption)
+  } catch (ex) {
+    console.log(red(`delete specified cdn domain configs failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
+
 const DescribeCdnDomainConfigs = async (credentials, domainName, functionName) => {
   let client = await getCdnClient(credentials)
   let params = {
@@ -225,10 +244,11 @@ const DescribeCdnDomainConfigs = async (credentials, domainName, functionName) =
   }
 }
 
-const SetCdnDomainConfig = async (credentials, domainName) => {
+const SetCdnDomainConfig = async (credentials, domainName, functions) => {
   let client = await getCdnClient(credentials)
   let params = {
-    "domainNames":domainName,
+    "domainNames": domainName,
+    "functions": functions
   }
   // construct function string
 
@@ -239,7 +259,7 @@ const SetCdnDomainConfig = async (credentials, domainName) => {
   try {
     return await client.request('BatchSetCdnDomainConfig', params, requestOption)
   } catch (ex) {
-    console.log(red(`describe user cdn domains failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+    console.log(red(`batch set cdn domains configs failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
   }
 }
 module.exports = {
@@ -253,5 +273,6 @@ module.exports = {
   DescribeUserDomains,
   UpdateTagResources,
   SetCdnDomainConfig,
-  DescribeCdnDomainConfigs
+  DescribeCdnDomainConfigs,
+  DeleteSpecificConfig,
 }
