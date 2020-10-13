@@ -33,28 +33,9 @@ const deploy = async (inputParams) => {
   // ipv6
 
   // other
-  if (others && others.GreenManager === "enable") {
-    let otherArgs
-    console.log(others)
-    let functionArgs = {
-      "argName":"enable",
-      "argValue":"on"
-    }
-
-    otherArgs = {
-      "functionArgs": new Array(functionArgs),
-      "functionName":"green_manager",
-    }
+  let otherArgs = await handleOthers(credentials, domainName, configs, others)
+  if (otherArgs) {
     functions.push(otherArgs)
-  } else if (!others || (others && others.GreenManager === "disable")) {
-    for (const c of configs.DomainConfigs.DomainConfig) {
-      if (c.FunctionName === "green_manager") {
-        await DeleteSpecificConfig(credentials, domainName, c.ConfigId)
-        break
-      }
-    }
-  } else {
-    console.log(red(`invalid green manager parameter: ${JSON.stringify(others)}`))
   }
 
   // http/https
@@ -74,6 +55,32 @@ const deploy = async (inputParams) => {
   console.log(JSON.stringify(functions))
   if (functions.length !== 0) {
     await SetCdnDomainConfig(credentials, domainName, JSON.stringify(functions))
+  }
+}
+
+const handleOthers = async (credentials, domainName, configs, others) => {
+  if (others && others.GreenManager === "enable") {
+    let otherArgs
+    console.log(others)
+    let functionArgs = {
+      "argName":"enable",
+      "argValue":"on"
+    }
+
+    otherArgs = {
+      "functionArgs": new Array(functionArgs),
+      "functionName":"green_manager",
+    }
+    return otherArgs
+  } else if (JSON.stringify(others) === "{}" || (others && others.GreenManager === "disable")) {
+    for (const c of configs.DomainConfigs.DomainConfig) {
+      if (c.FunctionName === "green_manager") {
+        await DeleteSpecificConfig(credentials, domainName, c.ConfigId)
+        break
+      }
+    }
+  } else {
+    console.log(red(`invalid green manager parameter: ${JSON.stringify(others)}`))
   }
 }
 
