@@ -48,27 +48,32 @@ const deploy = async (inputParams) => {
   // access control
   let accessControlArgs = await handleAccessControl(credentials, domainName, configs, accessControl)
   if (accessControlArgs) {
-    console.log(JSON.stringify(accessControlArgs))
+    // console.log(JSON.stringify(accessControlArgs))
     functions = functions.concat(accessControlArgs)
   }
 
   // performance
   let performanceArgs = await handlePerformance(credentials, domainName, configs, performance)
   if (performanceArgs) {
-    console.log(JSON.stringify(performanceArgs))
+    // console.log(JSON.stringify(performanceArgs))
     functions = functions.concat(performanceArgs)
   }
 
   // video
   let videoArgs = await handleVideo(credentials, domainName, configs, video)
   if (videoArgs) {
-    console.log(JSON.stringify(videoArgs))
+    // console.log(JSON.stringify(videoArgs))
     functions = functions.concat(videoArgs)
   }
 
   // back to origin
 
   // cache
+  let cacheArgs = await handleCache(credentials, domainName, configs, cache)
+  if (cacheArgs) {
+    // console.log(JSON.stringify(cacheArgs))
+    functions = functions.concat(cacheArgs)
+  }
 
   // https
 
@@ -384,6 +389,72 @@ const handleVideo = async (credentials, domainName, configs, video) => {
     } // end of 'if (video.VideoSplit && video.VideoSplit === "enable")'
 
   } // end of 'if (!video)'
+  return functions
+}
+
+const handleCache = async (credentials, domainName, configs, cache) => {
+  let functions = []
+  if (!cache) {
+    // 删除所有performance相关的配置操作
+    // await deleteConfig(credentials, domainName, configs,[""])
+    // TODO 删除其他配置
+  } else {
+    // FileTTl
+    if (cache.FileTTL) {
+      for (const ft of cache.FileTTL) {
+        functions.push(newFunction("filetype_based_ttl_set", [newFunctionArg("file_type", ft.FileType),
+          newFunctionArg("weight", ft.Weight), newFunctionArg("ttl", ft.TTL)]))
+      }
+    } // end of 'if (cache.FileTTL)'
+    // 先删除所有filettl, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "filetype_based_ttl_set")
+
+    // PathTTL
+    if (cache.PathTTL) {
+      for (const pt of cache.PathTTL) {
+        functions.push(newFunction("path_based_ttl_set", [newFunctionArg("path", pt.Path),
+          newFunctionArg("weight", pt.Weight), newFunctionArg("ttl", pt.TTL)]))
+      }
+    }
+    // 先删除所有pathttl, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "path_based_ttl_set")
+
+    // DefaultPages
+    if (cache.DefaultPages) {
+      for (const dp of cache.DefaultPages) {
+        functions.push(newFunction("error_page", [newFunctionArg("error_code", dp.Code), newFunctionArg("rewrite_page", dp.Page)]))
+      }
+    }
+    // 先删除所有default pages, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "error_page")
+
+    // rewrite
+    if (cache.Rewrite) {
+      for (const rw of cache.Rewrite) {
+        functions.push(newFunction("host_redirect", [newFunctionArg("flag", rw.Flag), newFunctionArg("regex", rw.Regex), newFunctionArg("replacement", rw.Replacement)]))
+      }
+    }
+    // 先删除所有default pages, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "host_redirect")
+
+    // SetResponseHeader
+    if (cache.SetResponseHeader) {
+      for (const rh of cache.SetResponseHeader) {
+        functions.push(newFunction("set_resp_header", [
+          newFunctionArg("header_operation_type", rh.OperationType),
+          newFunctionArg("key", rh.Key),
+          newFunctionArg("value", rh.Value),
+          newFunctionArg("duplicate", rh.Duplicate),
+          newFunctionArg("match_all", rh.MatchAll),
+          newFunctionArg("header_destination", rh.HeaderDestination),
+          newFunctionArg("header_source", rh.HeaderSource),
+        ]))
+      }
+    }
+    // 先删除所有default pages, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "set_resp_header")
+
+  } // end of 'if (!cache)'
   return functions
 }
 

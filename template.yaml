@@ -144,7 +144,7 @@ CdnDemoProject:
     Cache:
       FileTTL:
         - TTL: 10
-          FileType: txt
+          FileType: jpg
           Weight: 10
       PathTTL:
         - TTL: 10
@@ -152,19 +152,26 @@ CdnDemoProject:
           Weight: 10
       DefaultPages:
         - Code: 404
-          Page: index.html
+          Page: http://prettyzxx.com/err404.html
+        - Code: 504
+          Page: http://prettyzxx.com/err404.html
+        - Code: 414
+          Page: http://prettyzxx.com/err404.html
       Rewrite:
-        - Regex: Regex
-          Replacement: Replacement
+        - Regex: /err404.html
+          Replacement: /err415.html
           Flag: redirect
+        - Regex: /err414.html
+          Replacement: /err410.html
+          Flag: break
       SetResponseHeader:
         - Key: Content-Type
           Value: a
           OperationType: add
-          Duplicate: Duplicate
+          Duplicate: on
           HeaderSource: HeaderSource
           HeaderDestination: aa
-          MatchAll: MatchAll
+          MatchAll: on
     ### https配置
     Https:
       Status: true
