@@ -10,7 +10,7 @@ const deploy = async (inputParams) => {
   const {
     credentials, state, args, cdnDomain, tags, ipv6,
     others, force, accessControl, performance, video,
-    backToOrigin, cache, https, refresh, preload, domainName,
+    backToOrigin, cache, https, domainName,
   } = inputParams
 
   let userDomains = await DescribeUserDomains(credentials, domainName)
@@ -67,6 +67,11 @@ const deploy = async (inputParams) => {
   }
 
   // back to origin
+  let backToOrigionArgs = await handleBackToOrigin(credentials, domainName, configs, backToOrigin)
+  if (backToOrigionArgs) {
+    // console.log(JSON.stringify(cacheArgs))
+    functions = functions.concat(backToOrigionArgs)
+  }
 
   // cache
   let cacheArgs = await handleCache(credentials, domainName, configs, cache)
@@ -455,6 +460,126 @@ const handleCache = async (credentials, domainName, configs, cache) => {
     await deleteConfig(credentials, domainName, configs, "set_resp_header")
 
   } // end of 'if (!cache)'
+  return functions
+}
+
+const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin) => {
+  let functions = []
+  if (!backToOrigin) {
+    console.log("remove back to origin config...")
+    // 删除所有video相关的配置操作
+    // await deleteConfig(credentials, domainName, configs,["ali_remove_args", "set_hashkey_args"])
+    // TODO 删除其他配置
+  } else {
+    // Range 回源
+    if (backToOrigin.RequestHost) {
+      let requestHost = backToOrigin.RequestHost
+      let functionArgs = [newFunctionArg("domain_name", requestHost.Domain)]
+      functions.push(newFunction("set_req_host_header", functionArgs))
+    } else {
+      await deleteConfig(credentials, domainName, configs, ["set_req_host_header"])
+    } // end of 'if (backToOrigin.RequestHost)'
+
+    // 回源协议
+    if (backToOrigin.ForwardScheme) {
+      let forwardScheme = backToOrigin.ForwardScheme
+      let origin = forwardScheme.Origin
+      let enable = ""
+      if (forwardScheme.Enable === true) {
+        enable = "on"
+      } else if (forwardScheme.Enable === false) {
+        enable = "off"
+      }
+      functions.push(newFunction("forward_scheme", [newFunctionArg("enable", enable), newFunctionArg("scheme_origin", origin)]))
+    } else {
+      functions.push(newFunction("forward_scheme", [newFunctionArg("enable", "off")]))
+    } // end of 'if (backToOrigin.ForwardScheme)'
+
+    // 回源协议
+    if (backToOrigin.SNI) {
+      let sni = backToOrigin.SNI
+      functions.push(newFunction("https_origin_sni", [newFunctionArg("https_origin_sni", sni), newFunctionArg("enabled", "on")]))
+    } else {
+      functions.push(newFunction("https_origin_sni", [newFunctionArg("enabled", "off")]))
+    } // end of 'if (backToOrigin.SNI)'
+
+    // Timeout
+    if (backToOrigin.Timeout) {
+      let timeout = backToOrigin.Timeout
+      functions.push(newFunction("forward_timeout", [newFunctionArg("forward_timeout", timeout)]))
+    } else {
+      functions.push(newFunction("forward_timeout", [newFunctionArg("forward_timeout", 30)]))
+    } // end of 'if (backToOrigin.Timeout)'
+
+    // Request Header
+    if (backToOrigin.SetRequestHeader) {
+      let requestHeader = backToOrigin.SetRequestHeader
+      for (const rh of requestHeader) {
+        functions.push(newFunction("set_req_header", [newFunctionArg("key", rh.Key),
+          newFunctionArg("value", rh.Value)]))
+      }
+    }
+    // 先删除所有request header , TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "set_req_header")
+
+
+    // SetResponseHeader
+    if (backToOrigin.ResponseHeader) {
+      for (const rh of backToOrigin.ResponseHeader) {
+        functions.push(newFunction("origin_response_header", [
+          newFunctionArg("header_operation_type", rh.OperationType),
+          newFunctionArg("header_name", rh.Key),
+          newFunctionArg("header_value", rh.Value),
+          newFunctionArg("duplicate", rh.Duplicate),
+          newFunctionArg("match_all", rh.MatchAll),
+          newFunctionArg("header_destination", rh.HeaderDestination),
+          newFunctionArg("header_source", rh.HeaderSource),
+        ]))
+      }
+    }
+    // 先删除所有default pages, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "origin_response_header")
+
+    // URI rewrite
+    if (backToOrigin.UrlRewrite) {
+      for (const rw of backToOrigin.UrlRewrite) {
+        functions.push(newFunction("back_to_origin_url_rewrite",
+          [newFunctionArg("flag", rw.Flag), newFunctionArg("source_url", rw.SourceUrl), newFunctionArg("target_url", rw.TargetUrl)]))
+      }
+    }
+    // 先删除所有default pages, TODO 如果没有任何变更，则不要删除
+    await deleteConfig(credentials, domainName, configs, "back_to_origin_url_rewrite")
+
+    // ArgumentRewrite
+    if (backToOrigin.ArgumentRewrite) {
+      let deleteArgs = backToOrigin.ArgumentRewrite.Delete.join(" ")
+      let saveArgs = backToOrigin.ArgumentRewrite.Save.join(" ")
+      let addArgs = backToOrigin.ArgumentRewrite.Add.join(" ")
+      let modifyArgs = backToOrigin.ArgumentRewrite.Modify.join(" ")
+      let ignoreAllArgument = "off"
+      if (backToOrigin.ArgumentRewrite.IgnoreAll === "enable") {
+        ignoreAllArgument = "on"
+      } else if (backToOrigin.ArgumentRewrite.IgnoreAll === "disable") {
+        ignoreAllArgument = "off"
+      }
+
+      functions.push(newFunction("back_to_origin_argument_rewrite",
+        [
+          newFunctionArg("delete_argument", deleteArgs),
+          newFunctionArg("save_argument", saveArgs),
+          newFunctionArg("add_argument", addArgs),
+          newFunctionArg("modify_argument", modifyArgs),
+          newFunctionArg("enable", "on"),
+          newFunctionArg("ignore_all_argument", ignoreAllArgument)
+        ]))
+    } else {
+      functions.push(newFunction("back_to_origin_argument_rewrite",
+        [
+          newFunctionArg("enable", "off"),
+        ]))
+    }// end of 'if (backToOrigin.ArgumentRewrite)'
+
+  } // end of 'if (!backToOrigin)'
   return functions
 }
 

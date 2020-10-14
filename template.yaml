@@ -105,41 +105,59 @@ CdnDemoProject:
     ### 回源配置
     BackToOrigin:
       RequestHost: #回源HOST
-        Domain: anycodes.cn
+        Domain: prettyzxx.com
       SNI: sni
       Timeout: 10
+      # 没有set response header这一项
       SetResponseHeader:
         - Key: Content-Type
           Value: a
       SetRequestHeader:
         - Key: Content-Type
           Value: a
+        - Key: X-From-Cdn
+          Value: abc
       ForwardScheme: # 回源协议
         Enable: true
-        Origin: http
+        Origin: https
       ArgumentRewrite: # 参数改写
         Delete:
           - a
+          - b
         Save:
-          - a
-        IgnoreAll: enable
+          - c
+          - d
+        IgnoreAll: disable
         Add:
-          - a
+          - e
+          - f
         Modify:
-          - a
+          - g
+          - h
       UrlRewrite:
-        - SourceUrl: a
-          TargetUrl: a
+        - SourceUrl: /a
+          TargetUrl: /a1
           Flag: break
-          EnhanceBreak: a
+        - SourceUrl: /b
+          TargetUrl: /b1
+          Flag: enhance_break
+        - SourceUrl: /c
+          TargetUrl: /c1
       ResponseHeader:
         - Key: Content-Type
           Value: a
           OperationType: add
-          Duplicate: Duplicate
+          Duplicate: on
           HeaderSource: HeaderSource
           HeaderDestination: aa
-          MatchAll: MatchAll
+          MatchAll: on
+        - Key: X-From-Cdn
+          Value: b
+          OperationType: add
+          Duplicate: on
+          HeaderSource: HeaderSource
+          HeaderDestination: cc
+          MatchAll: on
     ### 缓存配置
     Cache:
       FileTTL:
