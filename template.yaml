@@ -83,25 +83,25 @@ CdnDemoProject:
           - args1
           - args2
           - args3
-      HashkeyArgs: # 保留参数
-        Enable: true
-        KeepOSSArgs: enable
-        Args:
-          - args1
-          - args2
+#      HashkeyArgs: # 保留参数
+#        Enable: true
+#        KeepOSSArgs: enable
+#        Args:
+#          - args1
+#          - args2
     ### 视频相关
     Video:
-      Range: range
+      Range: enable # enable/disable/force
       VideoSeek:
         Enable: true
         FlvSeek:
           ByTime: enable
-          Start: a
-          End: a
+          Start: 2
+          End: 6
         Mp4Seek:
-          Start: a
-          End: a
-      VideoSplit: enable    # 5. 设置加速域名的证书信息
+          Start: 5
+          End: 10
+      VideoSplit: disable # 5. 设置加速域名的证书信息
     ### 回源配置
     BackToOrigin:
       RequestHost: #回源HOST

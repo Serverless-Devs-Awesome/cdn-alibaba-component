@@ -60,6 +60,11 @@ const deploy = async (inputParams) => {
   }
 
   // video
+  let videoArgs = await handleVideo(credentials, domainName, configs, video)
+  if (videoArgs) {
+    console.log(JSON.stringify(videoArgs))
+    functions = functions.concat(videoArgs)
+  }
 
   // back to origin
 
@@ -197,6 +202,7 @@ const handlePerformance = async (credentials, domainName, configs, performance) 
   if (!performance) {
     // 删除所有performance相关的配置操作
     await deleteConfig(credentials, domainName, configs,["ali_remove_args", "set_hashkey_args"])
+    // TODO 删除其他配置
   } else {
     // Tesla 页面优化
     if (performance.Tesla) {
@@ -296,6 +302,92 @@ const handlePerformance = async (credentials, domainName, configs, performance) 
   } // end of 'if (!accessControl)'
   return functions
 }
+
+const handleVideo = async (credentials, domainName, configs, video) => {
+  let functions = []
+  if (!video) {
+    console.log("remove video config...")
+    // 删除所有video相关的配置操作
+    // await deleteConfig(credentials, domainName, configs,["ali_remove_args", "set_hashkey_args"])
+    // TODO 删除其他配置
+  } else {
+    // Range 回源
+    if (video.Range) {
+      let range = video.Range
+      if (range !== "enable" && range !== "disable" && range !== "force") {
+        console.log(red(`invalid video parameter for range: ${JSON.stringify(range)}`))
+      } else if (range === "enable") {
+        let functionArgs = [newFunctionArg("enable", "on")]
+        functions.push(newFunction("range", functionArgs))
+      } else if (range === "disable") {
+        let functionArgs = [newFunctionArg("enable", "off")]
+        functions.push(newFunction("range", functionArgs))
+      } else if (range === "force") {
+        let functionArgs = [newFunctionArg("enable", "force")]
+        functions.push(newFunction("range", functionArgs))
+      }
+    } else {
+      let functionArgs = [newFunctionArg("enable", "off")]
+      functions.push(newFunction("range", functionArgs))
+    } // end of 'if (video.Range) '
+
+    // 拖拽播放
+    if (video.VideoSeek) {
+      let enable = video.VideoSeek.Enable
+      let flvSeek = video.VideoSeek.FlvSeek
+      let mp4Seek = video.VideoSeek.Mp4Seek
+
+      let functionArgs = []
+      if (enable !== true && enable !== false) {
+        console.log(red(`invalid video parameter for video seek : ${JSON.stringify(video.VideoSeek)}`))
+      } else if (enable === true) {
+        functionArgs.push(newFunctionArg("enable", "on"))
+      } else if (enable === false) {
+        functionArgs.push(newFunctionArg("enable", "off"))
+      }
+
+      if (flvSeek) {
+        if (flvSeek.ByTime && flvSeek.ByTime === "enable") {
+          functionArgs.push(newFunctionArg("flv_seek_by_time", "on"))
+        } else {
+          functionArgs.push(newFunctionArg("flv_seek_by_time", "off"))
+        }
+        if (flvSeek.Start) {
+          functionArgs.push(newFunctionArg("flv_seek_start", flvSeek.Start))
+        }
+        if (flvSeek.End) {
+          functionArgs.push(newFunctionArg("flv_seek_end", flvSeek.End))
+        }
+      }
+
+      if (mp4Seek) {
+        if (mp4Seek.Start) {
+          functionArgs.push(newFunctionArg("mp4_seek_start", mp4Seek.Start))
+        }
+        if (mp4Seek.End) {
+          functionArgs.push(newFunctionArg("mp4_seek_end", mp4Seek.End))
+        }
+      }
+      functions.push(newFunction("video_seek", functionArgs))
+    } else {
+      let functionArgs = [newFunctionArg("enable", "off")]
+      functions.push(newFunction("video_seek", functionArgs))
+    } // end of 'if (video.VideoSeek) '
+
+    // 听视频
+    if (video.VideoSplit && video.VideoSplit === "enable") {
+      let functionArgs = [newFunctionArg("enable", "on")]
+      functions.push(newFunction("ali_video_split", functionArgs))
+    } else {
+      let functionArgs = [newFunctionArg("enable", "off")]
+      functions.push(newFunction("ali_video_split", functionArgs))
+    } // end of 'if (video.VideoSplit && video.VideoSplit === "enable")'
+
+  } // end of 'if (!video)'
+  return functions
+}
+
+
 
 // TODO delete config after all config
 const deleteConfig = async (credentials, domainName, configs, configNameList) => {
