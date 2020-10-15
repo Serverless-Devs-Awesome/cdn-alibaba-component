@@ -1,8 +1,11 @@
 'use strict'
 
+const fs = require('fs-extra')
+const path = require('path')
 const { green, yellow, blue, red} = require('colors')
 const {
-  AddCdnDomain, DescribeUserDomains, UpdateTagResources, DescribeCdnDomainConfigs, SetCdnDomainConfig, DeleteSpecificConfig
+  AddCdnDomain, DescribeUserDomains, UpdateTagResources, DescribeCdnDomainConfigs, SetCdnDomainConfig,
+  DeleteSpecificConfig, SetDomainServerCertificate, DescribeCdnCertificateList,
 } = require('../services/cdn')
 
 // TODO check param for each config
@@ -81,6 +84,11 @@ const deploy = async (inputParams) => {
   }
 
   // https
+  let httpsArgs = await handleHttps(credentials, domainName, configs, https)
+  if (httpsArgs) {
+    console.log(JSON.stringify(httpsArgs))
+    functions = functions.concat(httpsArgs)
+  }
 
   // console.log(JSON.stringify(functions))
   if (functions.length !== 0) {
@@ -583,6 +591,160 @@ const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin
   return functions
 }
 
+const handleHttps = async (credentials, domainName, configs, https) => {
+  let functions = []
+  if (!https) {
+    console.log("remove https config...")
+    // 删除所有video相关的配置操作
+    // await deleteConfig(credentials, domainName, configs,["ali_remove_args", "set_hashkey_args"])
+    // TODO 删除其他配置
+  } else {
+    if (https.Certificate) {
+      let certificate = https.Certificate.Certificate
+      let privateKey = https.Certificate.PrivateKey
+      let certType = https.Certificate.CertType
+      let certName = https.Certificate.CertName
+      let status = https.Certificate.Status
+      let forceSet = https.Certificate.ForceSet
+
+      let certList = await DescribeCdnCertificateList(credentials, domainName)
+      // console.log(JSON.stringify(certList))
+      let useExistCert = false
+      for (const c of certList.CertificateListModel.CertList.Cert) {
+        if (c.CertName === certName) {
+          useExistCert = true
+        }
+      }
+      if (!useExistCert) {
+        // Https证书配置
+        const privateKeyContent = await fs.readFile(privateKey, 'utf8')
+        const certificateContent = await fs.readFile(certificate, 'utf8')
+        // console.log(privateKeyContent)
+        // console.log(certificateContent)
+        await SetDomainServerCertificate(credentials, domainName, certType, certName, status, certificateContent, privateKeyContent, forceSet)
+      } else {
+        await SetDomainServerCertificate(credentials, domainName, certType, certName, status, "", "", forceSet)
+      }
+    } else {
+      await SetDomainServerCertificate(credentials, domainName, "upload", "", "off", "", "", "on")
+    } // end of 'if (https.Certificate)'
+
+    // Http2
+    if (https.Http2) {
+      if (https.Http2 === "enable"){
+        functions.push(newFunction("https_option", [newFunctionArg("http2", "on")]))
+      } else if (https.Http2 === "disable") {
+        functions.push(newFunction("https_option", [newFunctionArg("http2", "off")]))
+      } else {
+        console.log(red(`invalid performance parameter for https, invalid http2: ${JSON.stringify(https.Http2)}`))
+      }
+    } else {
+      functions.push(newFunction("https_option", [newFunctionArg("http2", "off")]))
+    } // end of 'if (https.Http2)'
+
+    // TLS
+    if (https.TLS) {
+      // TLS 10
+      let tls = https.TLS
+      let functionArgs = []
+      if (tls.Tls10) {
+        if (tls.Tls10 !== "enable" && tls.Tls10 !== "disable") {
+          console.log(red(`invalid performance parameter for https, invalid tls10: ${JSON.stringify(tls.TLS)}`))
+        } else if (tls.Tls10 === "enable") {
+          functionArgs.push(newFunctionArg("tls10", "on"))
+        } else if (tls.Tls10 === "disable") {
+          functionArgs.push(newFunctionArg("tls10", "off"))
+        }
+      } else {
+        functionArgs.push(newFunctionArg("tls10", "off"))
+      }
+
+      // TLS 11
+      if (tls.Tls11) {
+        if (tls.Tls11 !== "enable" && tls.Tls11 !== "disable") {
+          console.log(red(`invalid performance parameter for https, invalid tls11: ${JSON.stringify(tls.TLS)}`))
+        } else if (tls.Tls11 === "enable") {
+          functionArgs.push(newFunctionArg("tls11", "on"))
+        } else if (tls.Tls11 === "disable") {
+          functionArgs.push(newFunctionArg("tls11", "off"))
+        }
+      } else {
+        functionArgs.push(newFunctionArg("tls11", "off"))
+      }
+
+      // TLS 12
+      if (tls.Tls12) {
+        if (tls.Tls12 !== "enable" && tls.Tls12 !== "disable") {
+          console.log(red(`invalid performance parameter for https, invalid tls12: ${JSON.stringify(tls.TLS)}`))
+        } else if (tls.Tls12 === "enable") {
+          functionArgs.push( newFunctionArg("tls12", "on"))
+        } else if (tls.Tls12 === "disable") {
+          functionArgs.push(newFunctionArg("tls12", "off"))
+        }
+      } else {
+        functionArgs.push(newFunctionArg("tls12", "off"))
+      }
+
+      // TLS 13
+      if (tls.Tls13) {
+        if (tls.Tls13 !== "enable" && tls.Tls13 !== "disable") {
+          console.log(red(`invalid performance parameter for https, invalid tls13: ${JSON.stringify(tls.TLS)}`))
+        } else if (tls.Tls13 === "enable") {
+          functionArgs.push(newFunctionArg("tls13", "on"))
+        } else if (tls.Tls13 === "disable") {
+          functionArgs.push( newFunctionArg("tls13", "off"))
+        }
+      } else {
+        functionArgs.push(newFunctionArg("tls13", "off"))
+      }
+      functions.push(newFunction("https_tls_version", functionArgs))
+    } else {
+      // TODO remove all configs
+    }
+
+    // HSTS
+    if (https.HSTS) {
+      let enable = https.HSTS.Enable
+      let MaxAge = https.HSTS.MaxAge * 24 * 60 * 60
+      let IncludeSubdomains = https.HSTS.IncomingMessage
+      if (IncludeSubdomains) {
+        if (IncludeSubdomains !== "enable" && IncludeSubdomains !== "disable") {
+          console.log(red(`invalid performance parameter for https, invalid hsts: ${JSON.stringify(https.HSTS)}`))
+        } else if (IncludeSubdomains === "enable") {
+          IncludeSubdomains = "on"
+        } else {
+          IncludeSubdomains = "off"
+        }
+      } else {
+        IncludeSubdomains = "off"
+      }
+
+      if (enable !== true && enable !== false) {
+        console.log(red(`invalid performance parameter for https, invalid hsts: ${JSON.stringify(https.HSTS)}`))
+      } else if (enable === true) {
+        functions.push(newFunction("HSTS", [
+          newFunctionArg("enabled", "on"),
+          newFunctionArg("https_hsts_max_age", String(MaxAge)),
+          newFunctionArg("https_hsts_include_subdomains", IncludeSubdomains),
+        ]))
+        console.log(MaxAge)
+      } else {
+        functions.push(newFunction("HSTS", [
+          newFunctionArg("enabled", "off"),
+          newFunctionArg("https_hsts_max_age", MaxAge),
+          newFunctionArg("https_hsts_include_subdomains", IncludeSubdomains),
+        ]))
+      }
+    } else {
+      functions.push(newFunction("HSTS", [
+        newFunctionArg("enabled", "off"),
+        newFunctionArg("https_hsts_max_age", String(MaxAge)),
+        newFunctionArg("https_hsts_include_subdomains", IncludeSubdomains),
+      ]))
+    }
+  }
+  return functions
+}
 
 
 // TODO delete config after all config

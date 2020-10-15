@@ -192,20 +192,22 @@ CdnDemoProject:
           MatchAll: on
     ### https配置
     Https:
-      Status: true
-      CertName: yourCertName
-      CertType: upload
-      ForceSet: ForceSet
-      PrivateKey: './certificates/privateKey.pem'
-      Certificate: './certificates/certificate.pem'
-      Http2: enable
+      # 暂时只支持upload方式和cas方式
+      Certificate:
+        Status: on # on/off
+        CertName: myNewCertName2
+        CertType: upload # upload自定义/ cas指定certName即可
+        ForceSet: true # on/off
+        PrivateKey: './examples/privateKey.key'
+        Certificate: './examples/certificate.crt'
+      Http2: disable
       TLS:
         Tls10: enable
-        Tls11: enable
+        Tls11: disable
         Tls12: enable
-        Tls13: enable
+        Tls13: disable
       HSTS:
-        Enabled: true
+        Enable: true
         MaxAge: 10
         IncludeSubdomains: enable
     ### refresh 刷新配置

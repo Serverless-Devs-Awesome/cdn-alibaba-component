@@ -244,6 +244,47 @@ const DescribeCdnDomainConfigs = async (credentials, domainName, functionName) =
   }
 }
 
+const SetDomainServerCertificate = async (credentials, domainName, certType, certName, serverCertificateStatus, serverCertificate, privateKey, forceSet) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "domainName": domainName,
+    "certType": certType,
+    "certName": certName,
+    "serverCertificateStatus": serverCertificateStatus,
+    "serverCertificate": serverCertificate,
+    "privateKey": privateKey,
+    "forceSet": forceSet,
+  }
+  // console.log(params)
+
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('SetDomainServerCertificate', params, requestOption)
+  } catch (ex) {
+    console.log(red(`SetDomainServerCertificate failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
+
+const DescribeCdnCertificateList = async (credentials, domainName) => {
+  let client = await getCdnClient(credentials)
+  let params = {
+    "domainName": domainName,
+  }
+
+  let requestOption = {
+    method: 'POST'
+  }
+
+  try {
+    return await client.request('DescribeCdnCertificateList', params, requestOption)
+  } catch (ex) {
+    console.log(red(`DescribeCdnCertificateList failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+  }
+}
+
 const SetCdnDomainConfig = async (credentials, domainName, functions) => {
   let client = await getCdnClient(credentials)
   let params = {
@@ -275,4 +316,6 @@ module.exports = {
   SetCdnDomainConfig,
   DescribeCdnDomainConfigs,
   DeleteSpecificConfig,
+  SetDomainServerCertificate,
+  DescribeCdnCertificateList,
 }
