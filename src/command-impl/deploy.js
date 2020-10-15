@@ -86,7 +86,7 @@ const deploy = async (inputParams) => {
   // https
   let httpsArgs = await handleHttps(credentials, domainName, configs, https)
   if (httpsArgs) {
-    console.log(JSON.stringify(httpsArgs))
+    // console.log(JSON.stringify(httpsArgs))
     functions = functions.concat(httpsArgs)
   }
 
@@ -741,7 +741,6 @@ const handleHttps = async (credentials, domainName, configs, https) => {
           newFunctionArg("https_hsts_max_age", String(MaxAge)),
           newFunctionArg("https_hsts_include_subdomains", IncludeSubdomains),
         ]))
-        console.log(MaxAge)
       } else {
         functions.push(newFunction("HSTS", [
           newFunctionArg("enabled", "off"),
