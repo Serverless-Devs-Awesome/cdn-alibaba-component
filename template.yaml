@@ -36,8 +36,6 @@ CdnDemoProject:
     ### 其他配置
     Others:
       GreenManager: enable # 图片鉴黄
-    ### 强制 http/https
-    Force: Http / Https # 强制http/https
     ### 访问控制
     AccessControl:
       Referer: # 防盗链，只能配置白名单或者黑名单，不可都配置
@@ -201,6 +199,8 @@ CdnDemoProject:
         PrivateKey: './examples/privateKey.key'
         Certificate: './examples/certificate.crt'
       Http2: disable
+      ### 强制 http/https
+      Force: default # / Https # 强制http/https/default
       TLS:
         Tls10: enable
         Tls11: disable

@@ -642,6 +642,20 @@ const handleHttps = async (credentials, domainName, configs, https) => {
       functions.push(newFunction("https_option", [newFunctionArg("http2", "off")]))
     } // end of 'if (https.Http2)'
 
+    // force
+    if (https.Force) {
+      if (https.Force === "http"){
+        functions.push(newFunction("http_force", [newFunctionArg("enable", "on")]))
+      } else if (https.Force === "https") {
+        functions.push(newFunction("https_force", [newFunctionArg("enable", "on")]))
+      } else if (https.Force === "default") {
+        // do nothing
+      } else {
+        console.log(red(`invalid performance parameter for https, invalid http2: ${JSON.stringify(https.Force)}`))
+      }
+    } // end of 'if (https.Http2)'
+    await deleteConfig(credentials, domainName, configs, ["http_force", "https_force"])
+
     // TLS
     if (https.TLS) {
       // TLS 10
