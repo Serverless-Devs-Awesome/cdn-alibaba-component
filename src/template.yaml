@@ -39,40 +39,43 @@ CdnDemoProject:
     ### 访问控制
     AccessControl:
       Referer: # 防盗链，只能配置白名单或者黑名单，不可都配置
-#        White:
+        White:
+          AllowEmpty: true
+          List:
+            - prettyzxx.com
+            - www.baidu.com
+#        Black:
+#           TODO allowempty还未实现
 #          AllowEmpty: true
 #          List:
 #            - prettyzxx.com
 #            - www.baidu.com
-        Black:
-#          AllowEmpty: true
-          List:
-            - prettyzxx.com
-            - www.baidu.com
+#            - www.google.com
       Ip: # ip黑白名单
         WhiteList:
           - 10.10.10.10
           - 12.12.12.12
+          - 12.12.12.13
 #        BlackList:
 #          - 10.10.10.10
 #          - 12.12.12.12
       UserAgent: # UA黑白名单
-#        WhiteList:
-#          - iphone
-#          - andoriod
-        BlackList:
+        WhiteList:
           - iphone
           - andoriod
+#        BlackList:
+#          - iphone
+#          - andoriod
       Auth: # 阿里鉴权
-        Type: no_auth
+        Type: type_c # type_a type_b type_c no_auth
         Delta: 1800 # 默认1800，和控制台一致
-        Key1: Key3
+        Key1: Keys3
         Key2: Key4
     ### 性能优化
     Performance:
       Gzip: disable # 智能压缩
       Tesla: enable # 页面优化
-      Brotli: disable # Brotli压缩
+      Brotli: enable # Brotli压缩
       # 过滤参数和保留参数只能同时配置一个
       RemoveArgs: # 过滤参数
         Enable: true
@@ -91,22 +94,22 @@ CdnDemoProject:
     Video:
       Range: enable # enable/disable/force
       VideoSeek:
-        Enable: true
+        Enable: false
         FlvSeek:
-          ByTime: enable
+          ByTime: disable
           Start: 2
           End: 6
         Mp4Seek:
           Start: 5
           End: 10
-      VideoSplit: disable # 5. 设置加速域名的证书信息
+      VideoSplit: enable # 5. 设置加速域名的证书信息
     ### 回源配置
     BackToOrigin:
       RequestHost: #回源HOST
         Domain: prettyzxx.com
       SNI: sni
       Timeout: 10
-      # 没有set response header这一项
+#       没有set response header这一项
       SetResponseHeader:
         - Key: Content-Type
           Value: a
@@ -156,7 +159,7 @@ CdnDemoProject:
           HeaderSource: HeaderSource
           HeaderDestination: cc
           MatchAll: on
-    ### 缓存配置
+     ### 缓存配置
     Cache:
       FileTTL:
         - TTL: 10
@@ -188,9 +191,9 @@ CdnDemoProject:
           HeaderSource: HeaderSource
           HeaderDestination: aa
           MatchAll: on
-    ### https配置
+    ## https配置
     Https:
-      # 暂时只支持upload方式和cas方式
+#       暂时只支持upload方式和cas方式
       Certificate:
         Status: on # on/off
         CertName: myNewCertName2
@@ -199,7 +202,7 @@ CdnDemoProject:
         PrivateKey: './examples/privateKey.key'
         Certificate: './examples/certificate.crt'
       Http2: disable
-      ### 强制 http/https
+      ## 强制 http/https
       Force: default # / Https # 强制http/https/default
       TLS:
         Tls10: enable
@@ -210,11 +213,12 @@ CdnDemoProject:
         Enable: true
         MaxAge: 10
         IncludeSubdomains: enable
-    ### refresh 刷新配置
+    # refresh 刷新配置
     Refresh:
       Path: prettyzxx.com/image/1.png\nprettyzxx.com/image/2.png # splitting with \n or \r\n
       Type: File # File or Directory
-    ### preload 预热配置
+    ## preload 预热配置
     Preload:
       Path: prettyzxx.com/image/1.png\nprettyzxx.com/image/2.png
       Area: domestic # 1. overseas,  for all over the world except china mainland 2. domestic, for china mainland only  3. (empty) all over the world
+#

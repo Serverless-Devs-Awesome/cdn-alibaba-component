@@ -154,6 +154,7 @@ const UpdateTagResources = async (credentials, domainName, tags) => {
     await client.request('TagResources', desiredParams, requestOption)
   } catch (ex) {
     console.log(red(`add tag resources failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+    console.log(red(`${ex}`))
   }
 
   // get current tags
@@ -301,6 +302,7 @@ const SetCdnDomainConfig = async (credentials, domainName, functions) => {
     return await client.request('BatchSetCdnDomainConfig', params, requestOption)
   } catch (ex) {
     console.log(red(`batch set cdn domains configs failed: ${ex.data.Message}\nrefer ${ex.data.Recommend} for more information`))
+    // console.log(ex)
   }
 }
 module.exports = {
