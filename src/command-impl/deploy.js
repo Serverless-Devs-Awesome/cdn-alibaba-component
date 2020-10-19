@@ -188,7 +188,7 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
   } else {
     deleteConfigs.push("referer_white_list_set")
     deleteConfigs.push("referer_black_list_set")
-  } // end of 'if (accessControl.Referer) '
+  }
 
   // ip
   if (isParamsExist(accessControl.Ip)) {
@@ -208,7 +208,7 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
   } else {
     deleteConfigs.push("ip_allow_list_set")
     deleteConfigs.push("ip_black_list_set")
-  } // end of 'if (accessControl.Ip)'
+  }
 
   // user agent
   if (isParamsExist(accessControl.UserAgent)) {
@@ -227,7 +227,7 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
     }
   } else {
     deleteConfigs.push("ali_ua")
-  } // end of 'if (accessControl.UserAgent)'
+  }
 
   // Auth
   if (isParamsExist(accessControl.Auth)) {
@@ -251,7 +251,7 @@ const handleAccessControl = async (credentials, domainName, configs, accessContr
       newFunctionArg("ali_auth_delta", 1800),
     ]
     functions.push(newFunction("aliauth", functionArgs))
-  } // end of 'if (accessControl.Auth)'
+  }
 
   return {
     "functions":functions,
@@ -388,7 +388,7 @@ const handleVideo = async (credentials, domainName, configs, video) => {
   } else {
     let functionArgs = [newFunctionArg("enable", "off")]
     functions.push(newFunction("range", functionArgs))
-  } // end of 'if (video.Range) '
+  }
 
   // 拖拽播放
   if (isParamsExist(video.VideoSeek)) {
@@ -438,7 +438,7 @@ const handleVideo = async (credentials, domainName, configs, video) => {
   } else {
     let functionArgs = [newFunctionArg("enable", "off")]
     functions.push(newFunction("video_seek", functionArgs))
-  } // end of 'if (video.VideoSeek) '
+  }
 
   // 听视频
   let videoSplit = video.VideoSplit
@@ -449,7 +449,7 @@ const handleVideo = async (credentials, domainName, configs, video) => {
     } else {
       let functionArgs = [newFunctionArg("enable", "off")]
       functions.push(newFunction("ali_video_split", functionArgs))
-    } // end of 'if (video.VideoSplit && video.VideoSplit === "enable")'
+    }
   } else {
     console.log(red(`invalid video parameter for video split: ${JSON.stringify(video.VideoSplit)}`))
   }
@@ -467,7 +467,7 @@ const handleCache = async (credentials, domainName, configs, cache) => {
       functions.push(newFunction("filetype_based_ttl_set", [newFunctionArg("file_type", ft.FileType),
         newFunctionArg("weight", ft.Weight), newFunctionArg("ttl", ft.TTL)]))
     }
-  } // end of 'if (cache.FileTTL)'
+  }
   deleteConfigs.push("filetype_based_ttl_set")
 
   // PathTTL
@@ -526,7 +526,7 @@ const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin
     functions.push(newFunction("set_req_host_header", functionArgs))
   } else {
     deleteConfigs.push("set_req_host_header")
-  } // end of 'if (backToOrigin.RequestHost)'
+  }
 
   // 回源协议
   if (isParamsExist(backToOrigin.ForwardScheme)) {
@@ -541,7 +541,7 @@ const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin
     functions.push(newFunction("forward_scheme", [newFunctionArg("enable", enable), newFunctionArg("scheme_origin", origin)]))
   } else {
     functions.push(newFunction("forward_scheme", [newFunctionArg("enable", "off")]))
-  } // end of 'if (backToOrigin.ForwardScheme)'
+  }
 
   // 回源协议
   if (isParamsExist(backToOrigin.SNI)) {
@@ -549,7 +549,7 @@ const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin
     functions.push(newFunction("https_origin_sni", [newFunctionArg("https_origin_sni", sni), newFunctionArg("enabled", "on")]))
   } else {
     functions.push(newFunction("https_origin_sni", [newFunctionArg("enabled", "off")]))
-  } // end of 'if (backToOrigin.SNI)'
+  }
 
   // Timeout
   if (isParamsExist(backToOrigin.Timeout)) {
@@ -557,7 +557,7 @@ const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin
     functions.push(newFunction("forward_timeout", [newFunctionArg("forward_timeout", timeout)]))
   } else {
     functions.push(newFunction("forward_timeout", [newFunctionArg("forward_timeout", 30)]))
-  } // end of 'if (backToOrigin.Timeout)'
+  }
 
   // Request Header
   if (isParamsExist(backToOrigin.SetRequestHeader)) {
@@ -624,7 +624,7 @@ const handleBackToOrigin = async (credentials, domainName, configs, backToOrigin
       [
         newFunctionArg("enable", "off"),
       ]))
-  }// end of 'if (backToOrigin.ArgumentRewrite)'
+  }
   return {
     "functions":functions,
     "deleteConfigs":deleteConfigs
@@ -662,7 +662,7 @@ const handleHttps = async (credentials, domainName, configs, https) => {
     }
   } else {
     await SetDomainServerCertificate(credentials, domainName, "upload", "", "off", "", "", "on")
-  } // end of 'if (https.Certificate)'
+  }
 
   // Http2
   let http2 = https.Http2
@@ -688,7 +688,7 @@ const handleHttps = async (credentials, domainName, configs, https) => {
     } else {
       console.log(red(`invalid performance parameter for https, invalid http2: ${JSON.stringify(https.Force)}`))
     }
-  } // end of 'if (https.Http2)'
+  }
   deleteConfigs.push("http_force")
   deleteConfigs.push("https_force")
 
